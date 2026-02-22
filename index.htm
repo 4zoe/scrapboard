@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Current Gold & Silver Rates</title>
+<style>
+body { font-family: monospace; background:#111; color:#0f0; padding:20px; }
+pre { white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<h2>API by Zoe</h2>
+<pre id="output">Loading...</pre>
+
+<script>
+
+const TARGET_URL = 'https://data-asg.goldprice.org/dbXRates/USD';
+const RATES_API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(TARGET_URL);
+
+const OZ_TO_GRAM = 31.1035;
+const GRAM_TO_KG = 1000;
+const TOLA_TO_GRAM = 11.66;
+
+const PURITY_24K = 1.00;
+const PURITY_22K = 0.9167;
+const PURITY_21K = 0.8750;
+const PURITY_18K = 0.7500;
+
+fetch(RATES_API_URL)
+  .then(r => r.json())
+  .then(apiResponse => {
+    const collection = {};
+
+    apiResponse.items.forEach(item => {
+      const currency = item.curr;
+      const goldOZ = item.xauPrice;
+      const silverOZ = item.xagPrice;
+
+      const goldG = goldOZ / OZ_TO_GRAM;
+      const goldKG = goldG * GRAM_TO_KG;
+      const goldTola = goldG * TOLA_TO_GRAM;
+
+      const silverG = silverOZ / OZ_TO_GRAM;
+      const silverKG = silverG * GRAM_TO_KG;
+      const silverTola = silverG * TOLA_TO_GRAM;
+
+      collection[currency] = {
+        gold_rates: {
+          Price_OZ: +goldOZ.toFixed(2),
+          Price_G: +goldG.toFixed(2),
+          Price_KG: +goldKG.toFixed(2),
+          Price_Tola: +goldTola.toFixed(2),
+          Price_24K: +(goldG * PURITY_24K).toFixed(2),
+          Price_22K: +(goldG * PURITY_22K).toFixed(2),
+          Price_21K: +(goldG * PURITY_21K).toFixed(2),
+          Price_18K: +(goldG * PURITY_18K).toFixed(2)
+        },
+        silver_rates: {
+          Price_OZ: +silverOZ.toFixed(2),
+          Price_G: +silverG.toFixed(2),
+          Price_KG: +silverKG.toFixed(2),
+          Price_Tola: +silverTola.toFixed(2)
+        }
+      };
+    });
+
+    document.getElementById("output").textContent = JSON.stringify(collection, null, 2);
+  })
+  .catch(e => {
+    document.getElementById("output").textContent = "Error: " + e.message; 
+  });
+</script>
+
+</body>
+</html>
