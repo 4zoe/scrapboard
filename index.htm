@@ -1,75 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gold & Silver Live Rates — Zoe</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f14;
+    --card:#07101a;
+    --muted:#9fb3c8;
+    --accent:#ffd166;
+    --accent-2:#7ee7c7;
+    --glass: rgba(255,255,255,0.03);
+    --success:#2ecc71;
+    --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background:linear-gradient(180deg,#041018 0%, #071827 100%);
+    color:#e6f7ff;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+  }
+
+  .wrap{max-width:980px;margin:0 auto}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  .logo{
+    width:56px;height:56px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),#ff9f1c);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#041018;
+    box-shadow:0 6px 18px rgba(0,0,0,0.5);
+    font-size:20px;
+  }
+  h1{font-size:20px;margin:0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+
+  .controls{display:flex;gap:10px;align-items:center;margin:18px 0 22px;flex-wrap:wrap}
+  select, button{background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 10px;border-radius:8px}
+  button.primary{background:linear-gradient(90deg,var(--accent),#ff9f1c);color:#041018;border:none;font-weight:600}
+  .small{font-size:13px;padding:6px 8px}
+
+  .grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
+  .rates-table{width:100%;border-collapse:collapse;font-size:14px}
+  .rates-table th{font-weight:600;text-align:left;padding:8px 6px;color:var(--muted);font-size:12px}
+  .rates-table td{padding:10px 6px;border-top:1px dashed rgba(255,255,255,0.03)}
+  .muted{color:var(--muted);font-size:13px}
+  .k-rate{font-weight:700;color:var(--accent-2)}
+  .unit-pill{display:inline-block;background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-size:13px;margin-right:6px;border:1px solid rgba(255,255,255,0.02)}
+
+  .meta{display:flex;flex-direction:column;gap:8px}
+  .meta .stat{display:flex;justify-content:space-between;align-items:center}
+  .json-out{background:#02121a;padding:10px;border-radius:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#bfeef0;max-height:260px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
+  footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr; }
+    .meta{order:2}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">Z</div>
+      <div>
+        <h1>Live Gold & Silver Rates</h1>
+        <p class="lead">Data from <strong>data-asg.goldprice.org</strong> — converted to grams, kg, tola and karats (24k,22k,21k,18k,14k,10k).</p>
+      </div>
+    </header>
+
+    <div class="controls">
+      <label class="muted">Currency
+        <select id="currencySelect" aria-label="Currency selector">
+          <option value="USD">USD</option>
+        </select>
+      </label>
+
+      <label class="muted">Unit
+        <select id="unitSelect" aria-label="Unit selector">
+          <option value="g">Per Gram</option>
+          <option value="tola">Per Tola</option>
+          <option value="oz">Per Ounce</option>
+          <option value="kg">Per Kilogram</option>
+        </select>
+      </label>
+
+      <button id="refreshBtn" class="primary small">Refresh</button>
+      <button id="copyBtn" class="small">Copy JSON</button>
+      <div style="flex:1"></div>
+      <div class="muted" id="status">Loading…</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <table class="rates-table" id="ratesTable" aria-live="polite">
+          <thead>
+            <tr>
+              <th>Metal / Karat</th>
+              <th style="text-align:right">Price</th>
+            </tr>
+          </thead>
+          <tbody id="ratesBody">
+            <tr><td colspan="2" class="muted">Fetching rates…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card meta">
+        <div class="stat"><div class="muted">Last updated</div><div id="lastUpdated" class="muted">—</div></div>
+        <div class="stat"><div class="muted">Source</div><div class="muted">data-asg.goldprice.org</div></div>
+        <div class="stat"><div class="muted">Proxy</div><div class="muted">api.allorigins.win/get</div></div>
+
+        <div style="margin-top:8px">
+          <div class="muted" style="margin-bottom:6px">Raw JSON</div>
+          <div id="jsonOut" class="json-out">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Built for Zoe — prices are indicative. Use a server-side proxy for production to avoid rate limits.
+    </footer>
+  </div>
+
 <script>
-const TARGET_URL = 'https://data-asg.goldprice.org/dbXRates/USD';
-const RATES_API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(TARGET_URL);
+(() => {
+  const TARGET_URL = 'https://data-asg.goldprice.org/dbXRates/USD';
+  const PROXY = 'https://api.allorigins.win/get?url=' + encodeURIComponent(TARGET_URL);
 
-const OZ_TO_GRAM = 31.1035;
-const GRAM_TO_KG = 1000;
-const TOLA_TO_GRAM = 11.66;
+  const OZ_TO_GRAM = 31.1035;
+  const GRAM_TO_KG = 1000;
+  const TOLA_TO_GRAM = 11.66;
 
-// Purities
-const PURITY_24K = 1.00;
-const PURITY_22K = 0.9167;
-const PURITY_21K = 0.8750;
-const PURITY_18K = 0.7500;
-const PURITY_14K = 14 / 24;   // 0.583333...
-const PURITY_10K = 10 / 24;   // 0.416666...
+  const PURITIES = {
+    '24K': 24/24,
+    '22K': 22/24,
+    '21K': 21/24,
+    '18K': 18/24,
+    '14K': 14/24,
+    '10K': 10/24
+  };
 
-fetch(RATES_API_URL)
-  .then(r => r.json())
-  .then(apiResponse => {
+  const currencySelect = document.getElementById('currencySelect');
+  const unitSelect = document.getElementById('unitSelect');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const statusEl = document.getElementById('status');
+  const lastUpdatedEl = document.getElementById('lastUpdated');
+  const ratesBody = document.getElementById('ratesBody');
+  const jsonOut = document.getElementById('jsonOut');
+
+  let latestCollection = null;
+
+  function r2(v){ return Number(v.toFixed(2)); }
+
+  function computeRates(apiResponse){
     const collection = {};
+    if (!apiResponse || !apiResponse.items) return collection;
 
     apiResponse.items.forEach(item => {
-      const currency = item.curr;
-      const goldOZ = item.xauPrice;
-      const silverOZ = item.xagPrice;
+      const currency = item.curr || 'USD';
+      const goldOZ = Number(item.xauPrice) || 0;
+      const silverOZ = Number(item.xagPrice) || 0;
 
-      const goldG = goldOZ / OZ_TO_GRAM;
-      const goldKG = goldG * GRAM_TO_KG;
-      const goldTola = goldG * TOLA_TO_GRAM;
+      const goldPerGram = goldOZ / OZ_TO_GRAM;
+      const goldPerKg = goldPerGram * GRAM_TO_KG;
+      const goldPerTola = goldPerGram * TOLA_TO_GRAM;
 
-      const silverG = silverOZ / OZ_TO_GRAM;
-      const silverKG = silverG * GRAM_TO_KG;
-      const silverTola = silverG * TOLA_TO_GRAM;
+      const silverPerGram = silverOZ / OZ_TO_GRAM;
+      const silverPerKg = silverPerGram * GRAM_TO_KG;
+      const silverPerTola = silverPerGram * TOLA_TO_GRAM;
 
-      // helper to round numbers consistently
-      const r2 = v => +v.toFixed(2);
-
-      collection[currency] = {
-        gold_rates: {
-          Price_OZ: r2(goldOZ),
-          Price_G: r2(goldG),
-          Price_KG: r2(goldKG),
-          Price_Tola: r2(goldTola),
-
-          // karat prices per gram
-          Price_24K_per_g: r2(goldG * PURITY_24K),
-          Price_22K_per_g: r2(goldG * PURITY_22K),
-          Price_21K_per_g: r2(goldG * PURITY_21K),
-          Price_18K_per_g: r2(goldG * PURITY_18K),
-          Price_14K_per_g: r2(goldG * PURITY_14K),
-          Price_10K_per_g: r2(goldG * PURITY_10K),
-
-          // karat prices per tola (optional)
-          Price_24K_per_tola: r2(goldTola * PURITY_24K),
-          Price_22K_per_tola: r2(goldTola * PURITY_22K),
-          Price_21K_per_tola: r2(goldTola * PURITY_21K),
-          Price_18K_per_tola: r2(goldTola * PURITY_18K),
-          Price_14K_per_tola: r2(goldTola * PURITY_14K),
-          Price_10K_per_tola: r2(goldTola * PURITY_10K)
-        },
-        silver_rates: {
-          Price_OZ: r2(silverOZ),
-          Price_G: r2(silverG),
-          Price_KG: r2(silverKG),
-          Price_Tola: r2(silverTola)
-        }
+      const gold = {
+        oz: r2(goldOZ),
+        g: r2(goldPerGram),
+        kg: r2(goldPerKg),
+        tola: r2(goldPerTola),
+        karats: {}
       };
+
+      Object.keys(PURITIES).forEach(k => {
+        gold.karats[k] = {
+          per_g: r2(goldPerGram * PURITIES[k]),
+          per_tola: r2(goldPerTola * PURITIES[k]),
+          per_oz: r2(goldOZ * PURITIES[k]),
+          per_kg: r2(goldPerKg * PURITIES[k])
+        };
+      });
+
+      const silver = {
+        oz: r2(silverOZ),
+        g: r2(silverPerGram),
+        kg: r2(silverPerKg),
+        tola: r2(silverPerTola)
+      };
+
+      collection[currency] = { gold, silver };
     });
 
-    document.getElementById("output").textContent = JSON.stringify(collection, null, 2);
-  })
-  .catch(e => {
-    document.getElementById("output").textContent = "Error: " + e.message;
+    return collection;
+  }
+
+  function renderUI(collection){
+    latestCollection = collection;
+    const currency = currencySelect.value || Object.keys(collection)[0];
+    const unit = unitSelect.value || 'g';
+    const data = collection[currency];
+    if (!data){
+      ratesBody.innerHTML = '<tr><td colspan="2" class="muted">No data for selected currency.</td></tr>';
+      jsonOut.textContent = JSON.stringify(collection, null, 2);
+      return;
+    }
+
+    const unitLabel = unit === 'g' ? 'Per Gram' : unit === 'tola' ? 'Per Tola' : unit === 'oz' ? 'Per Ounce' : 'Per Kilogram';
+    const rows = [];
+
+    // Gold header row
+    rows.push(`<tr><td><strong>Gold</strong> <span class="muted">(${unitLabel})</span></td><td style="text-align:right" class="muted">${currency}</td></tr>`);
+
+    // 24k base
+    const baseVal = unit === 'g' ? data.gold.g : unit === 'tola' ? data.gold.tola : unit === 'oz' ? data.gold.oz : data.gold.kg;
+    rows.push(`<tr><td class="muted">24K</td><td style="text-align:right"><span class="k-rate">${baseVal}</span></td></tr>`);
+
+    // Karats
+    Object.keys(data.gold.karats).forEach(k => {
+      const v = unit === 'g' ? data.gold.karats[k].per_g
+              : unit === 'tola' ? data.gold.karats[k].per_tola
+              : unit === 'oz' ? data.gold.karats[k].per_oz
+              : data.gold.karats[k].per_kg;
+      rows.push(`<tr><td class="muted">${k}</td><td style="text-align:right">${v}</td></tr>`);
+    });
+
+    // Silver header
+    rows.push(`<tr><td style="padding-top:10px"><strong>Silver</strong> <span class="muted">(${unitLabel})</span></td><td style="text-align:right" class="muted">${currency}</td></tr>`);
+    const silverVal = unit === 'g' ? data.silver.g : unit === 'tola' ? data.silver.tola : unit === 'oz' ? data.silver.oz : data.silver.kg;
+    rows.push(`<tr><td class="muted">Silver</td><td style="text-align:right"><span class="k-rate">${silverVal}</span></td></tr>`);
+
+    ratesBody.innerHTML = rows.join('');
+    jsonOut.textContent = JSON.stringify(collection, null, 2);
+  }
+
+  async function fetchAndRender(){
+    statusEl.textContent = 'Fetching…';
+    statusEl.style.color = '';
+    try {
+      const res = await fetch(PROXY);
+      if (!res.ok) throw new Error('Network response not ok: ' + res.status);
+      const proxyData = await res.json();
+      // allorigins /get returns { contents: "..." }
+      const text = proxyData && proxyData.contents ? proxyData.contents : null;
+      if (!text) throw new Error('Proxy returned no contents');
+      const apiResponse = JSON.parse(text);
+      const collection = computeRates(apiResponse);
+
+      // populate currency select if needed
+      const currencies = Object.keys(collection);
+      if (currencies.length && currencySelect.options.length === 1){
+        currencySelect.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+      }
+
+      renderUI(collection);
+      latestCollection = collection;
+      const now = new Date();
+      lastUpdatedEl.textContent = now.toLocaleString();
+      statusEl.textContent = 'Updated';
+      statusEl.style.color = 'var(--success)';
+    } catch (err){
+      console.error(err);
+      statusEl.textContent = 'Error: ' + (err.message || 'Failed to fetch');
+      statusEl.style.color = 'var(--danger)';
+      ratesBody.innerHTML = `<tr><td colspan="2" class="muted">Error fetching data. See raw JSON below.</td></tr>`;
+      jsonOut.textContent = err.stack || String(err);
+    }
+  }
+
+  refreshBtn.addEventListener('click', () => {
+    fetchAndRender();
   });
+
+  unitSelect.addEventListener('change', () => {
+    if (latestCollection) renderUI(latestCollection);
+  });
+
+  currencySelect.addEventListener('change', () => {
+    if (latestCollection) renderUI(latestCollection);
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!latestCollection) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(latestCollection, null, 2));
+      copyBtn.textContent = 'Copied';
+      setTimeout(()=> copyBtn.textContent = 'Copy JSON', 1400);
+    } catch (e){
+      copyBtn.textContent = 'Copy failed';
+      setTimeout(()=> copyBtn.textContent = 'Copy JSON', 1400);
+    }
+  });
+
+  // initial load
+  fetchAndRender();
+
+  // auto-refresh every 90 seconds
+  setInterval(fetchAndRender, 90_000);
+})();
 </script>
+</body>
+</html>
