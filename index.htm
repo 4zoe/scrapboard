@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Metal Tracker Pro</title>
+<title>Metal Tracker Pro | Live Market</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
 <style>
 :root{
   --bg:#041018; --card:#07101a; --muted:#9fb3c8;
@@ -14,68 +13,74 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:#e6f7ff;padding:20px}
-.wrap{max-width:1000px;margin:auto}
-header{display:flex;justify-content:space-between;margin-bottom:20px}
-.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-select,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:8px;border-radius:6px}
-button.primary{background:var(--accent);color:#041018;border:none;font-weight:600}
+.wrap{max-width:1100px;margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.controls{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+select,input,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:10px;border-radius:8px;outline:none}
+button.primary{background:var(--accent);color:#041018;border:none;font-weight:700;cursor:pointer}
 .grid{display:grid;grid-template-columns:1fr 340px;gap:20px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
-.card{background:rgba(255,255,255,0.02);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.05)}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:rgba(255,255,255,0.02);border-radius:14px;padding:20px;border:1px solid rgba(255,255,255,0.05);height:fit-content}
 .rates-table{width:100%;border-collapse:collapse}
-.rates-table td{padding:12px;border-top:1px dashed rgba(255,255,255,0.05)}
-.k-rate{font-weight:700;color:var(--accent-2);font-size:1.2em}
-.trend{font-size:.8em;margin-left:6px}
-.up{color:var(--success)} .down{color:var(--danger)}
-.json-out{background:#02121a;padding:12px;border-radius:8px;font-family:monospace;font-size:11px;max-height:300px;overflow:auto}
-canvas{width:100%;height:90px}
+.rates-table td{padding:14px;border-top:1px dashed rgba(255,255,255,0.05)}
+.k-rate{font-weight:700;color:var(--accent-2);font-size:1.3em}
+.market-pill{font-size:12px;padding:4px 10px;border-radius:6px;font-weight:600}
+.up{background:rgba(46,204,113,0.15);color:var(--success)}
+.down{background:rgba(255,107,107,0.15);color:var(--danger)}
+.conv-box{margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1)}
+canvas{width:100%;height:100px;margin-top:15px}
 </style>
 </head>
-
 <body>
+
 <div class="wrap">
+  <header>
+    <div>
+      <h2 style="margin:0">Metal Tracker <span style="color:var(--accent)">Pro</span></h2>
+      <div id="market-summary" class="muted" style="font-size:13px">Waiting for market data...</div>
+    </div>
+    <div id="status" class="market-pill" style="background:var(--glass)">Booting...</div>
+  </header>
 
-<header>
-<div>
-<h2 style="margin:0">Metal Tracker Pro</h2>
-<div style="font-size:12px;color:#9fb3c8">Spot + history + trend</div>
-</div>
-<div id="status">Booting</div>
-</header>
+  <div class="controls">
+    <select id="currency"></select>
+    <select id="unit">
+      <option value="g">Gram</option>
+      <option value="oz">Ounce</option>
+      <option value="tola">Tola</option>
+      <option value="kg">Kilo</option>
+    </select>
+    <button id="refresh" class="primary">Sync Market</button>
+  </div>
 
-<div class="controls">
-<select id="currency"></select>
-<select id="unit">
-<option value="g">Gram</option>
-<option value="oz">Ounce</option>
-<option value="tola">Tola</option>
-<option value="kg">Kilo</option>
-</select>
-<button id="refresh" class="primary">Update</button>
-</div>
+  <div class="grid">
+    <div class="card">
+      <table class="rates-table"><tbody id="body"></tbody></table>
+      <canvas id="spark"></canvas>
+      
+      <div class="conv-box">
+        <div class="muted" style="font-size:12px;margin-bottom:10px">Value Estimator</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="number" id="calc-qty" value="10" style="width:80px">
+          <span id="calc-label" class="muted">Grams of Gold</span>
+          <div style="flex:1"></div>
+          <b id="calc-result" class="k-rate">$0.00</b>
+        </div>
+      </div>
+    </div>
 
-<div class="grid">
-<div class="card">
-<table class="rates-table"><tbody id="body"></tbody></table>
-<canvas id="spark"></canvas>
-</div>
-<div class="card">
-<div style="font-size:12px;color:#9fb3c8;margin-bottom:10px">Raw stream</div>
-<div id="json" class="json-out"></div>
-</div>
-</div>
-
+    <div class="card">
+      <div class="muted" style="font-size:12px;margin-bottom:10px">Market Feed (JSON)</div>
+      <div id="json" style="background:#02121a;padding:12px;border-radius:8px;font-family:monospace;font-size:11px;max-height:400px;overflow:auto"></div>
+    </div>
+  </div>
 </div>
 
 <script>
 const TARGET="https://data-asg.goldprice.org/dbXRates/USD";
-const PROXIES=[
- u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
- u=>`https://corsproxy.io/?${encodeURIComponent(u)}`
-];
-
-const OZ=31.1035,KG=1000,TOLA=11.66;
-const PURITIES={22:22/24,21:21/24,18:18/24,14:14/24};
+const PROXIES=[u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,u=>`https://corsproxy.io/?${encodeURIComponent(u)}` ];
+const OZ=31.1035, KG=1000, TOLA=11.66;
+const PURITIES={22:22/24, 21:21/24, 18:18/24};
 
 const el={
  body:document.getElementById('body'),
@@ -83,125 +88,102 @@ const el={
  currency:document.getElementById('currency'),
  unit:document.getElementById('unit'),
  status:document.getElementById('status'),
- spark:document.getElementById('spark')
+ spark:document.getElementById('spark'),
+ summary:document.getElementById('market-summary'),
+ qty:document.getElementById('calc-qty'),
+ res:document.getElementById('calc-result')
 };
 
-let cache=null,oldCache=null;
+let cache=null, changes={};
 let history=JSON.parse(localStorage.getItem("metalHistory")||"[]");
 
 function r(v){return Number(v.toFixed(2));}
 
-async function fetchProxy(){
- let err;
+async function fetchMarket(){
  for(const p of PROXIES){
   try{
    const res=await fetch(p(TARGET));
    const j=await res.json();
-
-   let data;
-   if(typeof j.contents==="string"&&j.contents.trim()) data=JSON.parse(j.contents);
-   else if(j.items) data=j;
-
+   const data = j.contents ? JSON.parse(j.contents) : j;
    if(data?.items) return data;
-
-  }catch(e){err=e;}
+  }catch(e){}
  }
- throw err;
-}
-
-function compute(api){
- const c={};
- api.items.forEach(i=>{
-  const g=i.xauPrice/OZ,s=i.xagPrice/OZ;
-  const cur=i.curr||"USD";
-  c[cur]={gold:{oz:r(i.xauPrice),g:r(g),kg:r(g*KG),tola:r(g*TOLA)},
-          silver:{oz:r(i.xagPrice),g:r(s),kg:r(s*KG),tola:r(s*TOLA)}};
- });
- return c;
-}
-
-function trend(type,unit,val){
- const old=oldCache?.[el.currency.value]?.[type]?.[unit];
- if(old===undefined) return '';
- if(val>old) return '<span class="trend up">▲</span>';
- if(val<old) return '<span class="trend down">▼</span>';
- return '';
-}
-
-function drawSpark(){
- const ctx=el.spark.getContext('2d');
- ctx.clearRect(0,0,el.spark.width,el.spark.height);
- if(history.length<2) return;
-
- const w=el.spark.width,h=el.spark.height;
- const min=Math.min(...history),max=Math.max(...history);
- const scale=v=>(h-10)-(v-min)/(max-min||1)*(h-20);
-
- ctx.beginPath();
- history.forEach((v,i)=>{
-  const x=i/(history.length-1)*w;
-  const y=scale(v);
-  i?ctx.lineTo(x,y):ctx.moveTo(x,y);
- });
- ctx.strokeStyle="#7ee7c7";
- ctx.lineWidth=2;
- ctx.stroke();
 }
 
 function render(){
  if(!cache) return;
- const cur=el.currency.value||"USD";
+ const cur=el.currency.value || "USD";
  const unit=el.unit.value;
  const d=cache[cur];
- if(!d) return;
+ const chg = changes[cur] || {g:0, s:0};
 
- const rows=[];
- const gv=d.gold[unit];
- rows.push(`<tr><td><b>Gold Spot</b></td><td align=right class=k-rate>${gv}${trend('gold',unit,gv)}</td></tr>`);
+ const trendClass = (v) => v >= 0 ? 'up' : 'down';
+ const trendIcon = (v) => v >= 0 ? '▲' : '▼';
+
+ let html = `
+  <tr><td><b>Gold Spot (24K)</b></td><td align=right><span class="k-rate">${d.gold[unit]}</span> 
+  <span class="market-pill ${trendClass(chg.g)}">${trendIcon(chg.g)} ${Math.abs(chg.g)}%</span></td></tr>`;
 
  Object.entries(PURITIES).forEach(([k,p])=>{
-   rows.push(`<tr><td style="color:#9fb3c8">${k}K</td><td align=right>${r(gv*p)}</td></tr>`);
+   html += `<tr><td class="muted">${k}K Jewelry</td><td align=right>${r(d.gold[unit]*p)}</td></tr>`;
  });
 
- const sv=d.silver[unit];
- rows.push(`<tr><td><b>Silver Spot</b></td><td align=right class=k-rate>${sv}${trend('silver',unit,sv)}</td></tr>`);
+ html += `<tr><td><b>Silver Spot</b></td><td align=right><span class="k-rate">${d.silver[unit]}</span> 
+ <span class="market-pill ${trendClass(chg.s)}">${trendIcon(chg.s)} ${Math.abs(chg.s)}%</span></td></tr>`;
 
- el.body.innerHTML=rows.join('');
- el.json.textContent=JSON.stringify(cache,null,2);
+ el.body.innerHTML=html;
+ el.summary.textContent = `Market session: ${cur} pricing enabled. ${unit.toUpperCase()} measurements.`;
+ 
+ // Update Converter
+ const total = r(el.qty.value * d.gold[unit]);
+ el.res.textContent = `${cur} ${total.toLocaleString()}`;
+ el.json.textContent = JSON.stringify(cache, null, 2);
 
- history.push(gv);
- if(history.length>30) history.shift();
+ history.push(d.gold.oz);
+ if(history.length>40) history.shift();
  localStorage.setItem("metalHistory",JSON.stringify(history));
  drawSpark();
 }
 
+function drawSpark(){
+ const ctx=el.spark.getContext('2d');
+ const w=el.spark.width=el.spark.offsetWidth*2, h=el.spark.height=200;
+ ctx.scale(2,2); // Sharper for retina
+ if(history.length<2) return;
+ const min=Math.min(...history), max=Math.max(...history);
+ const scale = v => 90 - (v-min)/(max-min||1)*70;
+ ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle="#7ee7c7";
+ history.forEach((v,i)=> {
+  const x=(i/(history.length-1))*el.spark.offsetWidth, y=scale(v);
+  i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+ });
+ ctx.stroke();
+}
+
 async function load(){
- el.status.textContent="Syncing";
- try{
-  const api=await fetchProxy();
-  oldCache=cache;
-  cache=compute(api);
+ el.status.textContent="Syncing...";
+ const api=await fetchMarket();
+ if(!api) return el.status.textContent="Offline";
 
-  const list=Object.keys(cache);
-  if(list.join()!=[...el.currency.options].map(o=>o.value).join())
-    el.currency.innerHTML=list.map(c=>`<option>${c}</option>`).join('');
+ api.items.forEach(i=>{
+  const cur=i.curr||"USD", g=i.xauPrice/OZ, s=i.xagPrice/OZ;
+  if(!cache) cache={};
+  cache[cur]={ gold:{oz:r(i.xauPrice),g:r(g),kg:r(g*KG),tola:r(g*TOLA)},
+               silver:{oz:r(i.xagPrice),g:r(s),kg:r(s*KG),tola:r(s*TOLA)}};
+  changes[cur]={g:r(i.pcXau), s:r(i.pcXag)};
+ });
 
-  render();
-  el.status.textContent="Live "+new Date().toLocaleTimeString();
-
- }catch{
-  el.status.textContent="Offline cache";
-  render();
+ if(el.currency.options.length===0){
+  el.currency.innerHTML=Object.keys(cache).map(c=>`<option>${c}</option>`).join('');
+  el.currency.value="USD";
  }
+ render();
+ el.status.textContent="Market Open";
 }
 
 el.refresh.onclick=load;
-el.unit.onchange=render;
-el.currency.onchange=render;
-
-load();
-setInterval(load,90000);
+el.unit.onchange=el.currency.onchange=el.qty.oninput=render;
+load(); setInterval(load, 60000);
 </script>
-
 </body>
 </html>
