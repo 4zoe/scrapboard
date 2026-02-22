@@ -3,10 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Metal Tracker Pro</title>
-
+<title>Metal Tracker Pro | Fixed</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
 <style>
 :root{
  --bg:#041018; --card:#07101a; --muted:#9fb3c8;
@@ -18,7 +16,7 @@ body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:#e6f7ff;pad
 .wrap{max-width:1000px;margin:auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-select,input,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:10px;border-radius:8px}
+select,input,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:10px;border-radius:8px;outline:none}
 button.primary{background:var(--accent);color:#041018;border:none;font-weight:700;cursor:pointer}
 .grid{display:grid;grid-template-columns:1fr 320px;gap:20px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
@@ -26,177 +24,163 @@ button.primary{background:var(--accent);color:#041018;border:none;font-weight:70
 .rates-table{width:100%;border-collapse:collapse}
 .rates-table td{padding:14px;border-top:1px dashed rgba(255,255,255,0.05)}
 .k-rate{font-weight:700;color:var(--accent2);font-size:1.3em}
-.market-pill{font-size:11px;padding:4px 8px;border-radius:6px;background:var(--glass)}
+.market-pill{font-size:11px;padding:4px 8px;border-radius:6px;background:var(--glass);font-weight:bold}
 .up{color:var(--success)} .down{color:var(--danger)}
-canvas{width:100%;height:100px;margin-top:15px}
+canvas{width:100%;height:100px;margin-top:15px;display:block}
 .muted{color:var(--muted)}
+pre{font-size:10px;overflow:auto;max-height:360px;margin:0;color:#7ee7c7;white-space:pre-wrap;word-wrap:break-word}
 </style>
 </head>
-
 <body>
 <div class="wrap">
-
 <header>
  <div>
   <h2 style="margin:0">Metal Tracker <span style="color:var(--accent)">Pro</span></h2>
-  <div id="summary" class="muted" style="font-size:12px">Initializing feed...</div>
+  <div id="summary" class="muted" style="font-size:12px">Initializing market feed...</div>
  </div>
  <div id="status" class="market-pill">BOOTING</div>
 </header>
 
 <div class="controls">
- <select id="currency"></select>
+ <select id="currency"><option value="USD">USD</option></select>
  <select id="unit">
   <option value="g">Gram</option>
   <option value="oz">Ounce</option>
   <option value="tola">Tola</option>
   <option value="kg">Kilo</option>
  </select>
- <button id="refresh" class="primary">Sync</button>
+ <button id="refreshBtn" class="primary">Sync Market</button>
 </div>
 
 <div class="grid">
  <div class="card">
-  <table class="rates-table"><tbody id="body"></tbody></table>
-  <canvas id="spark"></canvas>
-
-  <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);padding-top:15px">
-   <input type="number" id="qty" value="1" style="width:80px">
-   <b id="calc" class="k-rate" style="float:right">—</b>
+  <table class="rates-table"><tbody id="rateBody"></tbody></table>
+  <canvas id="sparkCanvas"></canvas>
+  <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;display:flex;justify-content:space-between;align-items:center">
+   <div style="display:flex;align-items:center;gap:10px">
+    <input type="number" id="calcQty" value="1" style="width:80px">
+    <span class="muted" style="font-size:12px">Quantity</span>
+   </div>
+   <b id="calcResult" class="k-rate">—</b>
   </div>
  </div>
-
  <div class="card">
-  <pre id="json" style="font-size:10px;overflow:auto;max-height:360px;margin:0;color:#7ee7c7"></pre>
+  <pre id="jsonOut"></pre>
  </div>
 </div>
-
 </div>
 
 <script>
-const CFG={
- TARGET:"https://data-asg.goldprice.org/dbXRates/USD",
- PROXIES:[
-  u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`
+const CFG = {
+ TARGET: "https://data-asg.goldprice.org/dbXRates/USD",
+ PROXIES: [
+  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`
  ],
- OZ:31.1034768, KG:1000, TOLA:11.6638,
- PURITIES:{ "22K":22/24,"21K":21/24,"18K":18/24 },
- MOCK:{items:[{curr:"USD",xauPrice:5100,xagPrice:82,pcXau:0,pcXag:0}]}
+ OZ: 31.1034768, KG: 1000, TOLA: 11.6638,
+ PURITIES: { "22K": 22/24, "21K": 21/24, "18K": 18/24 },
+ MOCK: { items: [{ curr: "USD", xauPrice: 5100, xagPrice: 82, pcXau: 0.8, pcXag: -0.2 }] }
 };
 
-const el={
- body:body,json:json,curr:currency,unit:unit,status:status,
- spark:spark,summary:summary,qty:qty,calc:calc
+const el = {
+ body: document.getElementById('rateBody'),
+ json: document.getElementById('jsonOut'),
+ curr: document.getElementById('currency'),
+ unit: document.getElementById('unit'),
+ status: document.getElementById('status'),
+ spark: document.getElementById('sparkCanvas'),
+ summary: document.getElementById('summary'),
+ qty: document.getElementById('calcQty'),
+ res: document.getElementById('calcResult'),
+ refresh: document.getElementById('refreshBtn')
 };
 
-let state={
- cache:null,
- history:JSON.parse(localStorage.getItem("goldHist")||"[]")
+let state = {
+ cache: null,
+ history: JSON.parse(localStorage.getItem("goldHist") || "[]")
 };
 
-async function fetchMarket(){
- for(const p of CFG.PROXIES){
-  try{
-   const r=await fetch(p(CFG.TARGET));
-   if(!r.ok) continue;
-   const j=await r.json();
-   const d=j.contents?JSON.parse(j.contents):j;
-   if(d?.items) return {live:true,data:d};
-  }catch{}
+async function fetchMarket() {
+ for (const p of CFG.PROXIES) {
+  try {
+   const r = await fetch(p(CFG.TARGET));
+   if (!r.ok) continue;
+   const j = await r.json();
+   const d = j.contents ? JSON.parse(j.contents) : j;
+   if (d?.items) return { live: true, data: d };
+  } catch(e) { console.log("Proxy failed, trying next..."); }
  }
- return {live:false,data:CFG.MOCK};
+ return { live: false, data: CFG.MOCK };
 }
 
-function parse(api){
- const o={};
- api.items.forEach(i=>{
-  const c=i.curr||"USD";
-  const gp=(i.xauPrice||0)/CFG.OZ;
-  const sp=(i.xagPrice||0)/CFG.OZ;
-  o[c]={
-   gold:{oz:i.xauPrice,g:gp,kg:gp*CFG.KG,tola:gp*CFG.TOLA,chg:i.pcXau||0},
-   silver:{oz:i.xagPrice,g:sp,kg:sp*CFG.KG,tola:sp*CFG.TOLA,chg:i.pcXag||0}
+function parse(api) {
+ const o = {};
+ api.items.forEach(i => {
+  const c = i.curr || "USD";
+  const gp = (i.xauPrice || 0) / CFG.OZ;
+  const sp = (i.xagPrice || 0) / CFG.OZ;
+  o[c] = {
+   gold: { oz: i.xauPrice, g: gp, kg: gp * CFG.KG, tola: gp * CFG.TOLA, chg: i.pcXau || 0 },
+   silver: { oz: i.xagPrice, g: sp, kg: sp * CFG.KG, tola: sp * CFG.TOLA, chg: i.pcXag || 0 }
   };
  });
  return o;
 }
 
-function fmt(v){
- return Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-}
+const fmt = v => Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const trend = v => `<span class="${v >= 0 ? 'up' : 'down'}">${v >= 0 ? '▲' : '▼'} ${Math.abs(v || 0)}%</span>`;
 
-function trend(v){
- return `<span class="${v>=0?'up':'down'}">${v>=0?'▲':'▼'} ${Math.abs(v||0)}%</span>`;
-}
-
-function drawSpark(){
- const ctx=el.spark.getContext("2d");
- const w=el.spark.width=el.spark.offsetWidth;
- const h=el.spark.height=100;
- ctx.clearRect(0,0,w,h);
-
- if(state.history.length<2) return;
-
- const min=Math.min(...state.history);
- const max=Math.max(...state.history);
-
- ctx.beginPath();
- ctx.lineWidth=2;
- ctx.strokeStyle="#7ee7c7";
-
- state.history.forEach((v,i)=>{
-  const x=(i/(state.history.length-1))*w;
-  const y=h-((v-min)/(max-min||1))*h;
-  i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+function drawSpark() {
+ const ctx = el.spark.getContext("2d");
+ const w = el.spark.width = el.spark.offsetWidth;
+ const h = el.spark.height = 100;
+ ctx.clearRect(0, 0, w, h);
+ if (state.history.length < 2) return;
+ const min = Math.min(...state.history), max = Math.max(...state.history);
+ ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = "#7ee7c7";
+ state.history.forEach((v, i) => {
+  const x = (i / (state.history.length - 1)) * w;
+  const y = h - ((v - min) / (max - min || 1)) * (h - 20) - 10;
+  i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
  });
  ctx.stroke();
 }
 
-function render(){
- if(!state.cache) return;
- const c=el.curr.value;
- const u=el.unit.value;
- const d=state.cache[c];
-
- let h=`<tr><td><b>Gold</b></td><td align="right"><span class="k-rate">${fmt(d.gold[u])}</span> ${trend(d.gold.chg)}</td></tr>`;
- Object.entries(CFG.PURITIES).forEach(([k,p])=>{
-  h+=`<tr class="muted"><td>${k}</td><td align="right">${fmt(d.gold[u]*p)}</td></tr>`;
+function render() {
+ if (!state.cache) return;
+ const c = el.curr.value, u = el.unit.value, d = state.cache[c];
+ let h = `<tr><td><b>Gold</b></td><td align="right"><span class="k-rate">${fmt(d.gold[u])}</span> ${trend(d.gold.chg)}</td></tr>`;
+ Object.entries(CFG.PURITIES).forEach(([k, p]) => {
+  h += `<tr class="muted"><td>${k}</td><td align="right">${fmt(d.gold[u] * p)}</td></tr>`;
  });
- h+=`<tr><td><b>Silver</b></td><td align="right"><span class="k-rate">${fmt(d.silver[u])}</span> ${trend(d.silver.chg)}</td></tr>`;
- el.body.innerHTML=h;
-
- el.calc.textContent=`${c} ${fmt(el.qty.value*d.gold[u])}`;
- el.json.textContent=JSON.stringify(state.cache,null,2);
-
+ h += `<tr><td><b>Silver</b></td><td align="right"><span class="k-rate">${fmt(d.silver[u])}</span> ${trend(d.silver.chg)}</td></tr>`;
+ el.body.innerHTML = h;
+ el.res.textContent = `${c} ${fmt(el.qty.value * d.gold[u])}`;
+ el.json.textContent = JSON.stringify(state.cache, null, 2);
  state.history.push(d.gold.oz);
- if(state.history.length>40) state.history.shift();
- localStorage.setItem("goldHist",JSON.stringify(state.history));
+ if (state.history.length > 50) state.history.shift();
+ localStorage.setItem("goldHist", JSON.stringify(state.history));
  drawSpark();
-
- el.summary.textContent=`${c}/${u.toUpperCase()} • ${new Date().toLocaleTimeString()}`;
+ el.summary.textContent = `Market session: ${c}/${u.toUpperCase()} • ${new Date().toLocaleTimeString()}`;
 }
 
-async function sync(){
- el.status.textContent="SYNC";
- const r=await fetchMarket();
- state.cache=parse(r.data);
-
- if(el.curr.options.length===0){
-  el.curr.innerHTML=Object.keys(state.cache).map(c=>`<option>${c}</option>`).join("");
+async function sync() {
+ el.status.textContent = "SYNCING...";
+ const r = await fetchMarket();
+ state.cache = parse(r.data);
+ if (el.curr.options.length <= 1) {
+  el.curr.innerHTML = Object.keys(state.cache).map(curr => `<option value="${curr}">${curr}</option>`).join("");
+  el.curr.value = "USD";
  }
-
  render();
- el.status.textContent=r.live?"LIVE":"MOCK";
- el.status.style.color=r.live?"var(--success)":"var(--danger)";
+ el.status.textContent = r.live ? "LIVE" : "MOCK";
+ el.status.style.color = r.live ? "var(--success)" : "var(--danger)";
 }
 
-refresh.onclick=sync;
-[curr,unit,qty].forEach(e=>e.oninput=render);
-
+el.refresh.onclick = sync;
+[el.curr, el.unit, el.qty].forEach(e => e.oninput = render);
 sync();
-setInterval(sync,120000);
+setInterval(sync, 120000);
 </script>
-
 </body>
 </html>
