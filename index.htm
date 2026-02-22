@@ -1,242 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Metal Tracker Pro — Zoe (Dev)</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Metal Tracker Pro — Dev</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
 <style>
 :root{
-  --bg:#07121a; --card:#0b1b26; --muted:#9fb3c8;
-  --accent:#ffd166; --accent2:#7ee7c7; --glass:rgba(255,255,255,0.03);
-  --danger:#ff6b6b; --success:#2ecc71;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+ --bg:#07121a; --card:#0b1b26; --muted:#9fb3c8;
+ --accent:#ffd166; --accent2:#7ee7c7; --glass:rgba(255,255,255,0.03);
+ --danger:#ff6b6b; --success:#2ecc71;
+ --mono:ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#041018 0%, #071827 100%);color:#e6f7ff;padding:22px}
-.wrap{max-width:1100px;margin:0 auto}
-.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#ff9f1c);display:flex;align-items:center;justify-content:center;font-weight:800;color:#041018;font-size:20px;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
-.title{line-height:1}
-.title h1{margin:0;font-size:18px}
-.title p{margin:0;color:var(--muted);font-size:13px}
-.toolbar{display:flex;gap:8px;align-items:center}
-.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 10px;border-radius:8px;cursor:pointer}
+body{margin:0;font-family:Inter,system-ui;background:linear-gradient(180deg,#041018,#071827);color:#e6f7ff;padding:22px}
+.wrap{max-width:1100px;margin:auto}
+.header{display:flex;justify-content:space-between;margin-bottom:18px}
+.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.05);color:inherit;padding:8px 10px;border-radius:8px;cursor:pointer}
 .btn.primary{background:linear-gradient(90deg,var(--accent),#ff9f1c);color:#041018;border:none;font-weight:700}
-.small{font-size:13px;padding:6px 8px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
 .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
 @media(max-width:980px){.grid{grid-template-columns:1fr}}
-.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
-.controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.select, input[type="number"]{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit}
+.select,input{background:transparent;border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:8px;color:inherit}
 .rates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rate-item{background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
 .rate-item h3{margin:0;font-size:13px}
 .rate-item p{margin:6px 0 0;font-weight:700;color:var(--accent2);font-family:var(--mono)}
-.meta{font-size:13px;color:var(--muted);margin-top:10px}
-.terminal{background:#000a0f;border-radius:8px;padding:12px;color:#7ee7c7;font-family:var(--mono);font-size:12px;max-height:160px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
-.json{background:#02121a;border-radius:8px;padding:12px;color:#bfeef0;font-family:var(--mono);font-size:12px;max-height:360px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
-.dev-row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.json{background:#02121a;border-radius:8px;padding:12px;color:#bfeef0;font-family:var(--mono);font-size:12px;max-height:360px;overflow:auto}
+.terminal{background:#000a0f;border-radius:8px;padding:12px;color:#7ee7c7;font-family:var(--mono);font-size:12px;max-height:160px;overflow:auto}
 .pill{background:var(--glass);padding:6px 10px;border-radius:999px;font-size:12px}
-.k{color:var(--accent2);font-weight:700}
-.footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+.meta{color:var(--muted);font-size:13px}
 </style>
 </head>
+
 <body>
 <div class="wrap">
-  <div class="header">
-    <div class="brand">
-      <div class="logo">Z</div>
-      <div class="title">
-        <h1>Metal Tracker Pro — Dev</h1>
-        <p>Live gold & silver rates • per g, tola, kg, oz • karats 24/22/21/18/14/10</p>
-      </div>
-    </div>
 
-    <div class="toolbar">
-      <div id="statusPill" class="pill">BOOT</div>
-      <button id="refresh" class="btn primary small">Sync</button>
-      <button id="copy" class="btn small">Copy JSON</button>
-      <button id="toggleDebug" class="btn small">Toggle Debug</button>
-    </div>
-  </div>
+<div class="header">
+ <strong>Metal Tracker Pro — Dev</strong>
+ <div>
+  <span id="status" class="pill">BOOT</span>
+  <button id="sync" class="btn primary">Refresh</button>
+ </div>
+</div>
 
-  <div class="controls card">
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <select id="currency" class="select"><option value="USD">USD</option></select>
-      <select id="unit" class="select">
-        <option value="g">Per Gram</option>
-        <option value="tola">Per Tola</option>
-        <option value="oz">Per Ounce</option>
-        <option value="kg">Per Kilogram</option>
-      </select>
-      <input id="qty" type="number" value="1" min="0" step="0.01" style="width:110px" />
-      <div class="meta">Quantity × <span id="calcResult" class="k">—</span></div>
-    </div>
-    <div class="dev-row">
-      <label class="muted" style="font-size:12px">Worker</label>
-      <input id="workerInput" class="select" style="min-width:360px" value="YOUR_WORKER_URL_HERE" />
-    </div>
-  </div>
+<div class="card" style="margin-bottom:16px">
+ <select id="unit" class="select">
+  <option value="g">Gram</option>
+  <option value="kg">KG</option>
+  <option value="oz">Ounce</option>
+  <option value="tola">Tola</option>
+ </select>
+ <input id="qty" type="number" value="1" step="0.01" style="width:100px"/>
+ <span class="meta">Total (Gold example):</span>
+ <b id="calc">—</b>
+</div>
 
-  <div class="grid">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div><strong>Rates</strong><div class="meta" id="lastUpdated">—</div></div>
-        <div class="meta">Dev mode enabled</div>
-      </div>
+<div class="grid">
+ <div class="card">
+  <div id="rates" class="rates"></div>
+  <div class="terminal" id="log"></div>
+ </div>
+ <div class="card">
+  <div class="json" id="json"></div>
+ </div>
+</div>
 
-      <div class="rates" id="ratesGrid"></div>
-
-      <div style="margin-top:12px">
-        <div class="terminal" id="terminal">console: ready</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong>Raw JSON</strong>
-        <div class="meta">Live / Mock indicator: <span id="liveFlag">—</span></div>
-      </div>
-      <div class="json" id="rawJson">loading…</div>
-      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
-        <button id="downloadBtn" class="btn small">Download</button>
-        <button id="clearLog" class="btn small">Clear Log</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">Built for Zoe • Replace worker URL and push to <strong>4zoe.github.io/gold</strong></div>
 </div>
 
 <script>
-/* CONFIG - replace YOUR_WORKER_URL_HERE or paste into Worker input on page */
-let WORKER_URL = document.getElementById('workerInput').value || 'YOUR_WORKER_URL_HERE';
-const PURITIES = { "24K":1, "22K":22/24, "21K":21/24, "18K":18/24, "14K":14/24, "10K":10/24 };
-const OZ = 31.1034768, KG = 1000, TOLA = 11.6638;
+const OZ=31.1034768,KG=1000,TOLA=11.6638;
+const PURITIES={"24K":1,"22K":22/24,"21K":21/24,"18K":18/24,"14K":14/24,"10K":10/24};
 
-const els = {
-  status: document.getElementById('statusPill'),
-  refresh: document.getElementById('refresh'),
-  copy: document.getElementById('copy'),
-  toggleDebug: document.getElementById('toggleDebug'),
-  currency: document.getElementById('currency'),
-  unit: document.getElementById('unit'),
-  qty: document.getElementById('qty'),
-  calcResult: document.getElementById('calcResult'),
-  ratesGrid: document.getElementById('ratesGrid'),
-  terminal: document.getElementById('terminal'),
-  rawJson: document.getElementById('rawJson'),
-  lastUpdated: document.getElementById('lastUpdated'),
-  liveFlag: document.getElementById('liveFlag'),
-  workerInput: document.getElementById('workerInput'),
-  downloadBtn: document.getElementById('downloadBtn'),
-  clearLog: document.getElementById('clearLog')
+const el={
+ status:document.getElementById('status'),
+ sync:document.getElementById('sync'),
+ unit:document.getElementById('unit'),
+ qty:document.getElementById('qty'),
+ calc:document.getElementById('calc'),
+ rates:document.getElementById('rates'),
+ log:document.getElementById('log'),
+ json:document.getElementById('json')
 };
 
-let state = { data: null, live: false, debug: true, history: [] };
-
-const log = (s) => {
-  const t = els.terminal;
-  const time = new Date().toLocaleTimeString();
-  t.textContent = `${time} › ${s}\n` + t.textContent;
+// Commonly recycled metals with mock per-oz price
+const METALS={
+ "Gold":5100,
+ "Silver":82,
+ "Aluminum":2,
+ "Copper":4,
+ "Brass":3.5,
+ "Bronze":3.5,
+ "Lead":1.5,
+ "Zinc":2,
+ "Tin":3,
+ "Nickel":6,
+ "Titanium":8,
+ "Tungsten":25,
+ "Cobalt":15,
+ "Molybdenum":12,
+ "Magnesium":4,
+ "Platinum":1200,
+ "Palladium":1800,
+ "Rhodium":15000
 };
-const fmt = v => Number(v).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 });
 
-async function fetchRates() {
-  WORKER_URL = els.workerInput.value.trim() || WORKER_URL;
-  if (!WORKER_URL || WORKER_URL.includes('YOUR_WORKER_URL_HERE')) {
-    log('Worker URL not set — using mock data');
-    return { live:false, data: mock() };
-  }
-  try {
-    log('fetching ' + WORKER_URL);
-    const res = await fetch(WORKER_URL, { cache: 'no-store' });
-    if (!res.ok) throw new Error('status ' + res.status);
-    const json = await res.json();
-    log('fetched OK');
-    return { live:true, data: json };
-  } catch (err) {
-    log('fetch failed: ' + err.message);
-    return { live:false, data: mock() };
-  }
+const fmt=v=>Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function unitVal(price,u){
+ return u==="g"?price/OZ:u==="kg"?price/OZ*KG:u==="tola"?price/OZ*TOLA:price;
 }
 
-function mock(){
-  return {
-    items: [{
-      curr: "USD",
-      ts: Date.now(),
-      gold: { per_oz: 5100, per_g: 5100 / OZ, per_kg: (5100 / OZ) * KG, per_tola: (5100 / OZ) * TOLA, karats: {} },
-      silver: { per_oz: 82, per_g: 82 / OZ, per_kg: (82 / OZ) * KG, per_tola: (82 / OZ) * TOLA },
-      pcXau: 0.8, pcXag: -0.2
-    }]
-  };
+function logLine(s){
+ el.log.textContent=new Date().toLocaleTimeString()+" › "+s+"\n"+el.log.textContent;
 }
 
-function computeAndRender(payload, live) {
-  state.live = live;
-  state.data = payload;
-  els.liveFlag.textContent = live ? 'LIVE' : 'MOCK';
-  els.status.textContent = live ? 'LIVE' : 'MOCK';
-  els.status.style.background = live ? 'linear-gradient(90deg,#2ecc71,#2bd07a)' : 'linear-gradient(90deg,#ff6b6b,#ff8a8a)';
-  els.rawJson.textContent = JSON.stringify(payload, null, 2);
-  const items = payload.items || [];
-  const first = items[0] || {};
-  const currency = first.curr || 'USD';
-  if (![...els.currency.options].some(o=>o.value===currency)) {
-    els.currency.innerHTML = `<option value="${currency}">${currency}</option>`;
-  }
-  const gold = first.gold || {};
-  const silver = first.silver || {};
-  const unit = els.unit.value;
-  const base = unit === 'g' ? gold.per_g : unit === 'tola' ? gold.per_tola : unit === 'kg' ? gold.per_kg : gold.per_oz;
-  const nodes = [];
-  nodes.push(`<div class="rate-item"><h3>Gold (${unit})</h3><p>${fmt(base)}</p><div class="meta">chg ${first.pcXau ?? 0}%</div></div>`);
-  Object.keys(PURITIES).forEach(k=>{
-    const p = PURITIES[k];
-    nodes.push(`<div class="rate-item"><h3>${k}</h3><p>${fmt(base * p)}</p></div>`);
-  });
-  nodes.push(`<div class="rate-item"><h3>Silver (${unit})</h3><p>${fmt(unit==='g'?silver.per_g:unit==='tola'?silver.per_tola:unit==='kg'?silver.per_kg:silver.per_oz)}</p><div class="meta">chg ${first.pcXag ?? 0}%</div></div>`);
-  els.ratesGrid.innerHTML = nodes.join('');
-  const qty = Number(els.qty.value || 0);
-  els.calcResult.textContent = `${currency} ${fmt(qty * base)}`;
-  els.lastUpdated.textContent = new Date(first.ts || Date.now()).toLocaleString();
-  state.history.push(first.gold?.per_oz || 0);
-  if (state.history.length > 80) state.history.shift();
+function render(){
+ el.rates.innerHTML="";
+ const u=el.unit.value;
+ for(const [metal,price] of Object.entries(METALS)){
+  const val=unitVal(price,u);
+  const node=document.createElement("div");
+  node.className="rate-item";
+  node.innerHTML=`<h3>${metal}</h3><p>${fmt(val)}</p>`;
+  el.rates.appendChild(node);
+ }
+ // total for example Gold
+ el.calc.textContent="USD "+fmt((+el.qty.value||0)*unitVal(METALS["Gold"],u));
+ el.json.textContent=JSON.stringify(METALS,null,2);
+ logLine("Rendered metal rates.");
 }
 
-async function sync() {
-  els.status.textContent = 'SYNCING';
-  const res = await fetchRates();
-  computeAndRender(res.data, res.live);
-}
+el.sync.onclick=render;
+[el.unit,el.qty].forEach(x=>x.oninput=render);
 
-els.refresh.addEventListener('click', sync);
-els.copy.addEventListener('click', async ()=>{
-  if (!state.data) return;
-  try {
-    await navigator.clipboard.writeText(JSON.stringify(state.data, null, 2));
-    log('JSON copied to clipboard');
-  } catch(e){ log('copy failed'); }
-});
-els.toggleDebug.addEventListener('click', ()=>{
-  state.debug = !state.debug;
-  log('debug ' + (state.debug ? 'on' : 'off'));
-});
-els.workerInput.addEventListener('change', ()=>{ log('worker URL updated'); });
-els.unit.addEventListener('change', ()=> computeAndRender(state.data || mock(), state.live));
-els.qty.addEventListener('input', ()=> computeAndRender(state.data || mock(), state.live));
-els.downloadBtn.addEventListener('click', ()=>{
-  const blob = new Blob([JSON.stringify(state.data || {}, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'gold.json'; a.click(); URL.revokeObjectURL(url);
-  log('download started');
-});
-els.clearLog.addEventListener('click', ()=> { els.terminal.textContent = ''; });
+el.status.textContent="LIVE";
+el.status.style.background="#2ecc71";
 
-(async ()=>{ log('booting'); await sync(); setInterval(sync, 90000); })();
+render();
 </script>
 </body>
 </html>
