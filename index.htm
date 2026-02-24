@@ -3,313 +3,314 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Metal Tracker Pro</title>
+<title>Scrapn’ and Freshen Up II</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
- --bg:#041018; --card:#07101a; --muted:#9fb3c8;
+ --bg:#020a0f; --card:#07101a; --muted:#9fb3c8;
  --accent:#ffd166; --accent2:#7ee7c7; --glass:rgba(255,255,255,0.04);
  --success:#2ecc71; --danger:#ff6b6b;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:#e6f7ff;padding:20px}
-.wrap{max-width:1100px;margin:auto}
+.wrap{max-width:1200px;margin:auto}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;background:var(--glass);padding:15px;border-radius:12px}
 select,input,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:10px;border-radius:8px;outline:none}
 button.primary{background:var(--accent);color:#041018;border:none;font-weight:700;cursor:pointer}
-.grid{display:grid;grid-template-columns:1fr 420px;gap:20px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
-.card{background:rgba(255,255,255,0.02);border-radius:14px;padding:20px;border:1px solid rgba(255,255,255,0.05)}
-.rates-table{width:100%;border-collapse:collapse}
-.rates-table td{padding:12px;border-top:1px dashed rgba(255,255,255,0.05)}
-.k-rate{font-weight:700;color:var(--accent2);font-size:1.15em}
-.market-pill{font-size:11px;padding:4px 8px;border-radius:6px;background:var(--glass);font-weight:bold}
-.up{color:var(--success)} .down{color:var(--danger)}
-canvas{width:100%;height:90px;margin-top:15px;display:block}
-.muted{color:var(--muted)}
+.main-grid{display:grid;grid-template-columns:1fr 380px;gap:20px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:15px}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
+
+.card{background:rgba(255,255,255,0.02);border-radius:14px;padding:15px;border:1px solid rgba(255,255,255,0.05);transition:transform 0.2s, background 0.2s}
+.card:hover{background:rgba(255,255,255,0.05);transform:translateY(-2px)}
 .clickable{cursor:pointer}
-.entries{width:100%;border-collapse:collapse;margin-top:10px}
-.entries td, .entries th{padding:8px;border-top:1px solid rgba(255,255,255,0.04);font-size:13px}
+.k-rate{font-weight:700;color:var(--accent2);font-size:1.15em}
+.up{color:var(--success)} .down{color:var(--danger)}
 .small{font-size:12px;color:var(--muted)}
-.total{font-size:1.25em}
-.badge{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,0.02);font-size:12px}
+.badge{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,0.02);font-size:11px}
 .remove{cursor:pointer;color:var(--danger);font-weight:700}
+
+.details-panel{margin-top:20px;padding:20px;background:var(--glass);border-radius:14px;border:1px solid var(--accent)}
+.rates-table{width:100%;border-collapse:collapse;margin-top:10px}
+.rates-table td{padding:10px 5px;border-top:1px solid rgba(255,255,255,0.05)}
+
+.basket-card{position:sticky;top:20px}
+.entries{width:100%;border-collapse:collapse;margin-top:10px}
+.entries td, .entries th{padding:8px;border-top:1px solid rgba(255,255,255,0.04);font-size:12px;text-align:left}
+pre{font-size:10px;color:var(--muted);background:#000;padding:10px;border-radius:8px;max-height:150px;overflow:auto}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
  <div>
-  <h2 style="margin:0">Metal Tracker <span style="color:var(--accent)">Pro</span></h2>
-  <div id="summary" class="muted small">Initializing market feed...</div>
+  <h1 style="margin:0;font-size:1.5em">Scrapn’ and <span style="color:var(--accent)">Freshen Up II</span></h1>
+  <div id="summary" class="small">Live Metals + Scrap Yard Feed</div>
  </div>
- <div id="status" class="market-pill">BOOTING</div>
+ <div id="status" class="badge">INITIALIZING</div>
 </header>
 
 <div class="controls">
  <select id="currency"></select>
  <select id="unitTop">
-  <option value="g">Gram</option>
-  <option value="oz">Ounce</option>
-  <option value="tola">Tola</option>
-  <option value="kg">Kilo</option>
+  <option value="lb">Pound (lb)</option>
+  <option value="kg">Kilo (kg)</option>
+  <option value="oz">Ounce (oz)</option>
+  <option value="g">Gram (g)</option>
  </select>
- <button id="refreshBtn" class="primary">Sync Market</button>
+ <button id="refreshBtn" class="primary" style="margin-left:auto">Sync Markets</button>
 </div>
 
-<div class="grid">
- <div class="card">
-  <table class="rates-table"><tbody id="rateBody"></tbody></table>
-  <canvas id="sparkCanvas"></canvas>
-  <div id="details" style="margin-top:12px"></div>
-  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin-top:18px">
+<div class="main-grid">
+ <div>
+  <h3 class="small" style="text-transform:uppercase;letter-spacing:1px">Live Precious Metals</h3>
+  <div class="cards-grid" id="preciousGrid"></div>
+  
+  <h3 class="small" style="text-transform:uppercase;letter-spacing:1px;margin-top:30px">Scrap Yard Values</h3>
+  <div class="cards-grid" id="scrapGrid"></div>
 
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <select id="itemMetal">
-      <option value="gold">Gold</option>
-      <option value="silver">Silver</option>
-      <option value="platinum">Platinum</option>
-      <option value="palladium">Palladium</option>
-    </select>
-
-    <select id="itemPurity"></select>
-    <input type="number" id="itemQty" value="1" min="0" step="any">
-    <select id="itemUnit">
-      <option value="g">g</option>
-      <option value="oz">oz</option>
-      <option value="kg">kg</option>
-      <option value="tola">tola</option>
-    </select>
-
-    <button id="addItem" class="primary">Add</button>
-    <div style="margin-left:auto;text-align:right">
-      <div class="small">Basket total</div>
-      <div id="basketTotal" class="k-rate total">—</div>
+  <div id="detailsPanel" class="details-panel" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 id="detailsTitle" style="margin:0;color:var(--accent)">Category</h2>
+        <button onclick="document.getElementById('detailsPanel').style.display='none'" class="small" style="background:none;border:none;cursor:pointer">✕ Close</button>
     </div>
+    <div id="detailsContent"></div>
   </div>
  </div>
 
- <div class="card">
-  <div style="display:flex;justify-content:space-between">
-    <div class="small">Debug</div>
-    <div class="badge" id="dataMode">--</div>
-  </div>
-  <pre id="jsonOut" style="height:360px;overflow:auto"></pre>
+ <div class="basket-card">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="small" style="text-transform:uppercase">Inventory Basket</span>
+        <div id="basketTotal" class="k-rate">$0.00</div>
+    </div>
+    <table class="entries">
+        <thead><tr><th>Item</th><th>Qty</th><th>Value</th><th></th></tr></thead>
+        <tbody id="entryBody"></tbody>
+    </table>
+    
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0">
+    
+    <div class="small" style="margin-bottom:10px">Quick Add Item</div>
+    <div style="display:grid;gap:10px">
+        <select id="itemCatSelect"></select>
+        <select id="itemSubSelect"></select>
+        <div style="display:flex;gap:5px">
+            <input type="number" id="itemQty" value="1" step="any" style="flex:1">
+            <select id="itemUnit" style="width:70px">
+                <option value="lb">lb</option>
+                <option value="kg">kg</option>
+                <option value="g">g</option>
+                <option value="oz">oz</option>
+            </select>
+            <button id="addItemBtn" class="primary">Add</button>
+        </div>
+    </div>
 
-  <table class="entries">
-    <thead><tr><th>Metal</th><th>Purity</th><th>Qty</th><th>Unit</th><th>Value</th><th></th></tr></thead>
-    <tbody id="entryBody"></tbody>
-  </table>
+    <div style="margin-top:30px">
+        <div class="small">Live Data Debug</div>
+        <pre id="jsonOut"></pre>
+    </div>
+  </div>
  </div>
 </div>
 </div>
 
 <script>
+const SCRAP = {
+ "Copper": [
+    {n:"Bare Bright Wire", p:4.90}, {n:"#1 Tubing", p:4.70}, {n:"#2 Tubing", p:4.60},
+    {n:"Tin Plated Wire", p:4.60}, {n:"Enamel Coated", p:4.60}, {n:"Light Copper", p:3.80},
+    {n:"Clean Alum/Copper Coils", p:2.30}, {n:"Irony Alum/Copper Coils", p:2.10}
+ ],
+ "Insulated Copper": [
+    {n:"Heavy Ins. (85%+)", p:3.20}, {n:"#1 Insulated (80%+)", p:3.05}, {n:"Romex 65%", p:2.60},
+    {n:"Communication 50%", p:1.60}, {n:"Clean Extension Cord", p:1.10}, {n:"Low Yield 35%", p:1.00},
+    {n:"Christmas Lights", p:0.20}, {n:"Insulated Heliax", p:1.70}, {n:"Aluminum MC", p:1.50}, {n:"Steel BX", p:0.50}
+ ],
+ "Brass": [
+    {n:"Yellow Brass", p:2.50}, {n:"Red Brass", p:2.60}, {n:"Clean Auto Radiators", p:2.25},
+    {n:"Radiator Cores", p:2.00}
+ ],
+ "Stainless Steel": [
+    {n:"304 Prepared", p:0.30}, {n:"304 Unprepared", p:0.15}, {n:"316 Stainless", p:0.40}
+ ],
+ "Aluminum": [
+    {n:"Alloy Wheels", p:0.85}, {n:"Extruded", p:0.75}, {n:"E.C. Wire", p:0.70}, {n:"Litho Plate", p:0.60},
+    {n:"MLC/New Clips", p:0.50}, {n:"Aluminum Siding", p:0.60}, {n:"Chrome Wheels", p:0.50},
+    {n:"Mixed Alum/Old Sheet", p:0.50}, {n:"Clean Alum Radiators", p:0.50}, {n:"Dirty Alum Radiators", p:0.15},
+    {n:"Cast Aluminum", p:0.50}, {n:"Aluminum Cans (<100lb)", p:0.45}, {n:"Aluminum Cans (>100lb)", p:0.48},
+    {n:"Insulated E.C.", p:0.40}, {n:"Pet Food Cans", p:0.15}
+ ],
+ "Lead & Batteries": [
+    {n:"Soft Lead", p:0.40}, {n:"Wheel Weights (Sorted)", p:0.15}, {n:"Wheel Weights (Unsorted)", p:0.10},
+    {n:"Lead Acid Batteries", p:0.15}, {n:"Steel Cased Forklift", p:0.10}
+ ],
+ "CBM / Motors": [
+    {n:"Small Electric Motors", p:0.30}, {n:"Large Electric Motors", p:0.20}, {n:"Light Ballasts", p:0.10},
+    {n:"Sealed Units", p:0.20}
+ ],
+ "Steel": [
+    {n:"Prepared #1", p:0.10}, {n:"Cast Iron", p:0.10}, {n:"Clean Cast Rotors", p:0.10},
+    {n:"Shredder/Plate", p:0.09}, {n:"Vehicles", p:0.09}, {n:"Unprepared Bulky", p:0.05},
+    {n:"Chain Link Fence", p:0.02}
+ ]
+};
+
 const CFG = {
  TARGET: "https://data-asg.goldprice.org/dbXRates/USD",
- PROXIES: [
-  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`
- ],
- OZ: 31.1034768, KG: 1000, TOLA: 11.6638,
- PURITY_PRESETS: {
-   goldKarats: [10,12,14,16,18,20,22,24],
-   platinum: [{label:"Pt 999", p:0.999},{label:"Pt 950", p:0.95}],
-   palladium: [{label:"Pd 999", p:0.999},{label:"Pd 950", p:0.95}],
-   silver: [{label:"Ag 999", p:0.999}]
- },
- MOCK: { items: [{ curr:"USD", xauPrice:5100, xagPrice:82, xptPrice:9500, xpdPrice:2300, pcXau:0.8, pcXag:-0.2, pcXpt:0.3, pcXpd:-0.1 }] }
+ PROXIES: [u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, u => `https://corsproxy.io/?${encodeURIComponent(u)}`],
+ LB: 1, KG: 0.453592, OZ: 16, G: 453.592, // Factors relative to LB
+ PRECIOUS_OZ: 31.1035, // Troy oz to gram conversion for precious metals
+ MOCK: { items: [{ curr:"USD", xauPrice:2340, xagPrice:28.50, xptPrice:980, xpdPrice:1020, pcXau:0.5, pcXag:-0.1, pcXpt:0.2, pcXpd:-0.4 }] }
+};
+
+const state = {
+ cache: null,
+ basket: JSON.parse(localStorage.getItem("scrapBasket")||"[]")
 };
 
 const el = {
- body: rateBody,
- curr: currency,
- unitTop: unitTop,
- status: status,
- spark: sparkCanvas,
- summary: summary,
- refresh: refreshBtn,
- details: details,
- itemMetal: itemMetal,
- itemPurity: itemPurity,
- itemQty: itemQty,
- itemUnit: itemUnit,
- addItemBtn: addItem,
- entryBody: entryBody,
- basketTotal: basketTotal,
- dataMode: dataMode,
- json: jsonOut
-};
-
-let state = {
- cache:null,
- history:JSON.parse(localStorage.getItem("goldHist")||"[]"),
- basket:JSON.parse(localStorage.getItem("metalBasket")||"[]")
+ prec: preciousGrid, scrap: scrapGrid,
+ curr: currency, unit: unitTop,
+ status: status, summary: summary,
+ refresh: refreshBtn, details: detailsPanel,
+ detTitle: detailsTitle, detContent: detailsContent,
+ catSel: itemCatSelect, subSel: itemSubSelect,
+ qty: itemQty, itemUnit: itemUnit,
+ addBtn: addItemBtn, basketBody: entryBody,
+ basketTotal: basketTotal, json: jsonOut
 };
 
 const fmt = v => Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const trend = v => `<span class="${v>=0?'up':'down'}">${v>=0?'▲':'▼'} ${Math.abs(Number(v||0)).toFixed(2)}%</span>`;
-const unitFactor = u => u==='g'?1:u==='oz'?CFG.OZ:u==='kg'?CFG.KG:u==='tola'?CFG.TOLA:1;
-const convertRate = (v,from,to)=> (v/unitFactor(from))*unitFactor(to);
 
-async function fetchMarket(){
- for(const p of CFG.PROXIES){
-  try{
-   const r=await fetch(p(CFG.TARGET));
-   if(!r.ok) continue;
-   const j=await r.json();
-   const d=j.contents?JSON.parse(j.contents):j;
-   if(d?.items) return {live:true,data:d};
-  }catch{}
- }
- return {live:false,data:CFG.MOCK};
-}
-
-function parse(api){
- const out={}, fallback=CFG.MOCK.items[0];
- api.items.forEach(i=>{
-  const c=i.curr||"USD";
-  const make=(price,pc=0)=>{
-   const perOz=Number(price||0);
-   const perGram=perOz/CFG.OZ;
-   return {oz:perOz,g:perGram,kg:perGram*CFG.KG,tola:perGram*CFG.TOLA,chg:pc||0};
-  };
-  out[c]={
-   gold:make(i.xauPrice,i.pcXau),
-   silver:make(i.xagPrice,i.pcXag),
-   platinum:make(i.xptPrice||fallback.xptPrice,i.pcXpt||fallback.pcXpt),
-   palladium:make(i.xpdPrice||fallback.xpdPrice,i.pcXpd||fallback.pcXpd)
-  };
- });
- return out;
-}
-
-function drawSpark(){
- const ctx=el.spark.getContext("2d");
- const w=el.spark.width=el.spark.offsetWidth;
- const h=el.spark.height=90;
- ctx.clearRect(0,0,w,h);
- if(state.history.length<2) return;
- const min=Math.min(...state.history), max=Math.max(...state.history);
- const range=max-min||1;
- ctx.beginPath(); ctx.lineWidth=2; ctx.strokeStyle="#7ee7c7";
- state.history.forEach((v,i)=>{
-  const x=(i/(state.history.length-1))*w;
-  const y=h-((v-min)/range)*(h-20)-10;
-  i?ctx.lineTo(x,y):ctx.moveTo(x,y);
- });
- ctx.stroke();
-}
-
-function renderRates(){
- if(!state.cache) return;
- const c=el.curr.value||"USD", u=el.unitTop.value, d=state.cache[c];
- let html='';
- ['gold','silver','platinum','palladium'].forEach(m=>{
-  const info=d[m];
-  if(!info||!info.oz) return;
-  html+=`<tr class="metal-row clickable" data-metal="${m}">
-   <td><b style="text-transform:capitalize">${m}</b></td>
-   <td align="right"><span class="k-rate">${fmt(convertRate(info.oz,'oz',u))}</span> ${trend(info.chg)}</td>
-  </tr>`;
- });
- el.body.innerHTML=html;
- const firstRow=document.querySelector('.metal-row');
- if(firstRow) showDetails(firstRow.dataset.metal);
- if(d.gold?.oz){
-  state.history.push(d.gold.oz);
-  if(state.history.length>60) state.history.shift();
-  localStorage.setItem("goldHist",JSON.stringify(state.history));
- }
- drawSpark();
- document.querySelectorAll('.metal-row').forEach(r=>r.onclick=()=>showDetails(r.dataset.metal));
-}
-
-function showDetails(metal){
- const c=el.curr.value,u=el.unitTop.value,d=state.cache[c],info=d[metal];
- if(!info) return;
- let html=`<div class="small">Breakdown — ${metal} (${u})</div><table style="width:100%"><tbody>`;
- if(metal==='gold'){
-  CFG.PURITY_PRESETS.goldKarats.forEach(k=>{
-   const p=k/24;
-   html+=`<tr><td>${k}K</td><td align="right">${fmt(convertRate(info.oz,'oz',u)*p)}</td></tr>`;
-  });
- }else{
-  CFG.PURITY_PRESETS[metal].forEach(pr=>{
-   html+=`<tr><td>${pr.label}</td><td align="right">${fmt(convertRate(info.oz,'oz',u)*pr.p)}</td></tr>`;
-  });
- }
- html+=`</tbody></table>`;
- el.details.innerHTML=html;
-}
-
-function populatePurity(m){
- el.itemPurity.innerHTML='';
- if(m==='gold'){
-  CFG.PURITY_PRESETS.goldKarats.forEach(k=>{
-   el.itemPurity.insertAdjacentHTML('beforeend',`<option value="${k/24}">${k}K</option>`);
-  });
- }else{
-  CFG.PURITY_PRESETS[m].forEach(pr=>{
-   el.itemPurity.insertAdjacentHTML('beforeend',`<option value="${pr.p}">${pr.label}</option>`);
-  });
- }
-}
-
-function renderBasket(){
- el.entryBody.innerHTML='';
- let total=0;
- state.basket.forEach((it,i)=>{
-  total+=it.value;
-  el.entryBody.insertAdjacentHTML('beforeend',`
-   <tr>
-    <td>${it.metal}</td>
-    <td>${it.purityLabel}</td>
-    <td>${fmt(it.qty)}</td>
-    <td>${it.unit}</td>
-    <td>${fmt(it.value)}</td>
-    <td><span class="remove" data-i="${i}">✕</span></td>
-   </tr>`);
- });
- document.querySelectorAll('.remove').forEach(n=>n.onclick=()=>{state.basket.splice(n.dataset.i,1);localStorage.setItem("metalBasket",JSON.stringify(state.basket));renderBasket();});
- el.basketTotal.textContent=el.curr.value+" "+fmt(total);
-}
+// Weight conversion: converts price from per-lb to the target unit
+const convertScrap = (pricePerLb, toUnit) => {
+    const factors = { lb:1, kg: 1/0.453592, oz: 1/16, g: 1/453.592 };
+    return pricePerLb * factors[toUnit];
+};
 
 async function sync(){
  el.status.textContent="SYNCING...";
- const r=await fetchMarket();
- state.cache=parse(r.data);
- el.curr.innerHTML=Object.keys(state.cache).map(c=>`<option>${c}</option>`).join('');
- el.curr.value="USD";
- renderRates();
- renderBasket();
- el.status.textContent=r.live?"LIVE":"MOCK";
- el.status.style.color=r.live?"var(--success)":"var(--danger)";
- el.dataMode.textContent=r.live?"LIVE":"MOCK";
- el.json.textContent=JSON.stringify(r.data,null,2);
+ let data = CFG.MOCK;
+ for(const p of CFG.PROXIES){
+  try{
+   const r=await fetch(p(CFG.TARGET));
+   if(r.ok){
+    const j=await r.json();
+    data = j.contents ? JSON.parse(j.contents) : j;
+    el.status.textContent="LIVE"; el.status.style.color="var(--success)";
+    break;
+   }
+  }catch(e){}
+ }
+ if(el.status.textContent === "SYNCING") { el.status.textContent="MOCK"; el.status.style.color="var(--danger)"; }
+ state.cache = data.items[0];
+ el.json.textContent = JSON.stringify(data, null, 2);
+ el.curr.innerHTML = `<option>${state.cache.curr}</option>`;
+ render();
 }
 
-el.refresh.onclick=sync;
-el.curr.onchange=()=>{renderRates();renderBasket();};
-el.unitTop.onchange=()=>renderRates();
-el.itemMetal.onchange=()=>populatePurity(el.itemMetal.value);
-el.addItemBtn.onclick=()=>{
- const m=el.itemMetal.value;
- const purity=Number(el.itemPurity.value||1);
- const label=el.itemPurity.selectedOptions[0]?.textContent||'';
- const qty=Number(el.itemQty.value||0);
- if(!state.cache?.[el.curr.value]?.[m]?.oz){alert("No price. Sync first.");return;}
- const value=convertRate(state.cache[el.curr.value][m].oz,'oz',el.itemUnit.value)*purity*qty;
- state.basket.push({metal:m,purityLabel:label,qty,unit:el.itemUnit.value,value});
- localStorage.setItem("metalBasket",JSON.stringify(state.basket));
+function render(){
+ const u = el.unit.value;
+ // Render Precious Metals
+ const pm = [
+    {n:"Gold", p:state.cache.xauPrice, c:state.cache.pcXau},
+    {n:"Silver", p:state.cache.xagPrice, c:state.cache.pcXag},
+    {n:"Platinum", p:state.cache.xptPrice, c:state.cache.pcXpt},
+    {n:"Palladium", p:state.cache.xpdPrice, c:state.cache.pcXpd}
+ ];
+ el.prec.innerHTML = pm.map(m => `
+    <div class="card clickable" onclick="showBreakdown('${m.n}', true)">
+        <div class="small">${m.n}</div>
+        <div class="k-rate">$${fmt(convertScrap(m.p * (16 / 1.09714), u))}</div>
+        <div class="small">${trend(m.c)}</div>
+    </div>
+ `).join('');
+
+ // Render Scrap Categories
+ el.scrap.innerHTML = Object.keys(SCRAP).map(cat => {
+    const topItem = SCRAP[cat][0];
+    return `
+    <div class="card clickable" onclick="showBreakdown('${cat}', false)">
+        <div class="small">${cat}</div>
+        <div class="k-rate">$${fmt(convertScrap(topItem.p, u))}</div>
+        <div class="small">Per ${u} (starts at)</div>
+    </div>`;
+ }).join('');
+
  renderBasket();
+}
+
+window.showBreakdown = (cat, isPrecious) => {
+    el.detTitle.textContent = cat;
+    el.details.style.display = 'block';
+    const u = el.unit.value;
+    let html = `<table class="rates-table"><thead><tr class="small"><th>Sub-Type</th><th align="right">Price / ${u}</th></tr></thead><tbody>`;
+    
+    if(isPrecious) {
+        const p = cat === 'Gold' ? state.cache.xauPrice : cat === 'Silver' ? state.cache.xagPrice : cat === 'Platinum' ? state.cache.xptPrice : state.cache.xpdPrice;
+        const basePerLb = p * (16 / 1.09714);
+        [1, 0.5, 0.25, 0.1].forEach(factor => {
+            html += `<tr><td>${factor * 100}% Purity</td><td align="right" class="k-rate">$${fmt(convertScrap(basePerLb * factor, u))}</td></tr>`;
+        });
+    } else {
+        SCRAP[cat].forEach(item => {
+            html += `<tr><td>${item.n}</td><td align="right" class="k-rate">$${fmt(convertScrap(item.p, u))}</td></tr>`;
+        });
+    }
+    el.detContent.innerHTML = html + `</tbody></table>`;
 };
 
-populatePurity(el.itemMetal.value);
-renderBasket();
+function initSelectors(){
+    el.catSel.innerHTML = Object.keys(SCRAP).map(c => `<option value="${c}">${c}</option>`).join('');
+    el.catSel.onchange = () => {
+        const cat = el.catSel.value;
+        el.subSel.innerHTML = SCRAP[cat].map(i => `<option value="${i.p}">${i.n}</option>`).join('');
+    };
+    el.catSel.onchange();
+}
+
+function renderBasket(){
+    el.basketBody.innerHTML = '';
+    let total = 0;
+    state.basket.forEach((it, i) => {
+        const val = convertScrap(it.pricePerLb, it.unit) * it.qty;
+        total += val;
+        el.basketBody.insertAdjacentHTML('beforeend', `
+            <tr>
+                <td>${it.name}<br><span class="small">$${fmt(it.pricePerLb)}/lb</span></td>
+                <td>${it.qty}${it.unit}</td>
+                <td class="k-rate">$${fmt(val)}</td>
+                <td><span class="remove" onclick="removeItem(${i})">✕</span></td>
+            </tr>
+        `);
+    });
+    el.basketTotal.textContent = `$${fmt(total)}`;
+}
+
+window.removeItem = (i) => {
+    state.basket.splice(i, 1);
+    localStorage.setItem("scrapBasket", JSON.stringify(state.basket));
+    renderBasket();
+};
+
+el.addBtn.onclick = () => {
+    const name = el.subSel.options[el.subSel.selectedIndex].text;
+    const pricePerLb = Number(el.subSel.value);
+    state.basket.push({ name, pricePerLb, qty: Number(el.qty.value), unit: el.itemUnit.value });
+    localStorage.setItem("scrapBasket", JSON.stringify(state.basket));
+    renderBasket();
+};
+
+el.refresh.onclick = sync;
+el.unit.onchange = render;
+
+initSelectors();
 sync();
-setInterval(sync,120000);
+setInterval(sync, 120000);
 </script>
 </body>
 </html>
