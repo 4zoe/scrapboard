@@ -100,8 +100,8 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     </div>
     <div class="nav-tabs">
         <button class="tab-btn active" id="marketTab" onclick="switchTab('market')"><i class="fa-solid fa-chart-line"></i> Market Watch</button>
-        <button class="tab-btn" id="calcTab" onclick="switchTab('calc')"><i class="fa-solid fa-calculator"></i> Scrap Calc</button>
-        <button class="tab-btn" id="devTab" onclick="switchTab('dev')"><i class="fa-solid fa-code"></i> Dev Data</button>
+        <button class="tab-btn" id="calcTab" onclick="switchTab('calc')"><i class="fa-solid fa-calculator"></i> Scrap It</button>
+        <button class="tab-btn" id="devTab" onclick="switchTab('dev')"><i class="fa-solid fa-code"></i> Dev/API</button>
         <button class="tab-btn" id="feedbackTab" onclick="switchTab('feedback')"><i class="fa-solid fa-envelope"></i> Feedback</button>
     </div>
     <div class="nav-right">
@@ -117,7 +117,7 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
 
 <div class="wrap">
     <div id="marketView" class="view active">
-        <div class="section-title"><i class="fa-solid fa-gem"></i> Precious Metals (Spot)</div>
+        <div class="section-title"><i class="fa-solid fa-gem"></i> Precious Metals</div>
         <div class="grid" id="preciousGrid"></div>
         
         <div class="section-title"><i class="fa-solid fa-truck-pickup"></i> Scrap Yard Categories</div>
@@ -127,7 +127,7 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     <div id="calcView" class="view">
         <div class="calc-grid">
             <div class="calc-panel">
-                <h3 style="margin-top:0; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px">Inventory Input</h3>
+                <h3 style="margin-top:0; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px">Scrap it!</h3>
                 <label class="badge" style="margin-bottom:10px; display:inline-block">1. Material Category</label>
                 <select id="calcCatSelect" onchange="updateCalcItems()"></select>
                 
@@ -156,19 +156,19 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     </div>
 
     <div id="devView" class="view">
-        <div class="section-title"><i class="fa-solid fa-server"></i> Live API Response (GoldPrice.org)</div>
+        <div class="section-title"><i class="fa-solid fa-server"></i> Live API Response</div>
         <pre id="devOutput">Loading API Data...</pre>
     </div>
 
     <div id="feedbackView" class="view">
         <div class="calc-panel" style="max-width: 600px; margin: 40px auto; text-align: center;">
             <i class="fa-solid fa-envelope-open-text" style="font-size: 3em; color: var(--accent); margin-bottom: 20px;"></i>
-            <h2 style="margin-top: 0;">We'd love to hear from you!</h2>
+            <h2 style="margin-top: 0;">I want hear from you!</h2>
             <p style="color: var(--muted); margin-bottom: 30px; line-height: 1.6;">
-                Have a suggestion for SCRAPBOARD? Found a bug, or want to request a new yard category or feature? Send an email directly to the developer.
+                Have a suggestion for SCRAPBOARD? Found a bug, or want to request a new yard category or feature?
             </p>
             <a href="mailto:zoe.vandeburgh@icloud.com?subject=SCRAPBOARD%20Feedback" style="text-decoration: none;">
-                <button class="add-btn" style="width: auto; padding: 15px 40px;"><i class="fa-solid fa-paper-plane"></i> Email zoe.vandeburgh@icloud.com</button>
+                <button class="add-btn" style="width: auto; padding: 15px 40px;"><i class="fa-solid fa-paper-plane"></i> Email Zoe</button>
             </a>
         </div>
     </div>
@@ -186,8 +186,8 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     <div class="modal-window" style="text-align:center; max-width: 400px;" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeAbout()"><i class="fa-solid fa-xmark"></i></span>
         <i class="fa-solid fa-heart" style="font-size: 3em; color: var(--danger); margin-bottom: 20px;"></i>
-        <h2 style="margin-top:0; color: var(--text);">About SCRAPBOARD</h2>
-        <p style="font-size: 1.1em; color: var(--muted);">built by Zoë for Brooke with love</p>
+        <h2 style="margin-top:0; color: var(--text);">SCRAPBOARD v0.3</h2>
+        <p style="font-size: 1.1em; color: var(--muted);">Built by Zoë for Brooke with love!</p>
     </div>
 </div>
 
