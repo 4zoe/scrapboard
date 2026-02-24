@@ -3,314 +3,226 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Scrapn’ and Freshen Up II</title>
+<title>SCRAPBOARD</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root{
- --bg:#020a0f; --card:#07101a; --muted:#9fb3c8;
- --accent:#ffd166; --accent2:#7ee7c7; --glass:rgba(255,255,255,0.04);
- --success:#2ecc71; --danger:#ff6b6b;
+:root {
+ --bg: #020a0f; --card: #07101a; --text: #e6f7ff; --muted: #9fb3c8;
+ --accent: #ffd166; --accent2: #7ee7c7; --glass: rgba(255,255,255,0.06);
+ --success: #2ecc71; --danger: #ff6b6b; --nav: #0b1a27; --border: rgba(255,255,255,0.1);
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:#e6f7ff;padding:20px}
-.wrap{max-width:1200px;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;background:var(--glass);padding:15px;border-radius:12px}
-select,input,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:10px;border-radius:8px;outline:none}
-button.primary{background:var(--accent);color:#041018;border:none;font-weight:700;cursor:pointer}
-.main-grid{display:grid;grid-template-columns:1fr 380px;gap:20px}
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:15px}
-@media(max-width:900px){.main-grid{grid-template-columns:1fr}}
-
-.card{background:rgba(255,255,255,0.02);border-radius:14px;padding:15px;border:1px solid rgba(255,255,255,0.05);transition:transform 0.2s, background 0.2s}
-.card:hover{background:rgba(255,255,255,0.05);transform:translateY(-2px)}
-.clickable{cursor:pointer}
-.k-rate{font-weight:700;color:var(--accent2);font-size:1.15em}
-.up{color:var(--success)} .down{color:var(--danger)}
-.small{font-size:12px;color:var(--muted)}
-.badge{padding:3px 6px;border-radius:6px;background:rgba(255,255,255,0.02);font-size:11px}
-.remove{cursor:pointer;color:var(--danger);font-weight:700}
-
-.details-panel{margin-top:20px;padding:20px;background:var(--glass);border-radius:14px;border:1px solid var(--accent)}
-.rates-table{width:100%;border-collapse:collapse;margin-top:10px}
-.rates-table td{padding:10px 5px;border-top:1px solid rgba(255,255,255,0.05)}
-
-.basket-card{position:sticky;top:20px}
-.entries{width:100%;border-collapse:collapse;margin-top:10px}
-.entries td, .entries th{padding:8px;border-top:1px solid rgba(255,255,255,0.04);font-size:12px;text-align:left}
-pre{font-size:10px;color:var(--muted);background:#000;padding:10px;border-radius:8px;max-height:150px;overflow:auto}
+[data-theme="light"] {
+ --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+ --accent: #d97706; --accent2: #059669; --glass: rgba(0,0,0,0.04);
+ --success: #16a34a; --danger: #dc2626; --nav: #ffffff; --border: rgba(0,0,0,0.1);
+}
+* { box-sizing: border-box; transition: background 0.2s; }
+body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+nav { background: var(--nav); padding: 0 20px; display: flex; align-items: center; height: 70px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
+.nav-brand { font-weight: 700; font-size: 1.4em; display: flex; align-items: center; gap: 10px; margin-right: 40px; }
+.nav-brand i { color: var(--accent); }
+.nav-tabs { display: flex; gap: 8px; }
+.tab-btn { background: none; border: none; color: var(--muted); padding: 8px 16px; cursor: pointer; font-weight: 600; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+.tab-btn.active { color: var(--accent); background: var(--glass); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 15px; }
+.theme-btn { cursor: pointer; background: var(--glass); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 12px; width: 44px; text-align: center; }
+.wrap { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+.view { display: none; } .view.active { display: block; }
+.section-title { font-size: 0.8em; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin: 30px 0 15px; display: flex; align-items: center; gap: 10px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.card { background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid var(--border); cursor: pointer; }
+.card:hover { transform: translateY(-4px); border-color: var(--accent); }
+.price-hero { font-size: 1.8em; font-weight: 700; color: var(--accent2); margin: 10px 0; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+.modal-window { background: var(--card); width: 90%; max-width: 550px; border-radius: 24px; padding: 30px; border: 1px solid var(--border); position: relative; max-height: 80vh; overflow-y: auto; }
+.close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--muted); }
+.calc-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+.calc-panel { background: var(--glass); padding: 25px; border-radius: 20px; }
+.calc-panel select, .calc-panel input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.add-btn { background: var(--accent); color: #000; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.calc-table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+.calc-table td { padding: 12px 5px; border-bottom: 1px solid var(--border); }
+.badge { padding: 4px 8px; border-radius: 6px; background: var(--glass); font-size: 11px; font-weight: 700; }
 </style>
 </head>
-<body>
+<body data-theme="dark">
+
+<nav>
+    <div class="nav-brand"><i class="fa-solid fa-recycle"></i> SCRAPBOARD</div>
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="marketTab" onclick="switchTab('market')"><i class="fa-solid fa-chart-line"></i> Market Watch</button>
+        <button class="tab-btn" id="calcTab" onclick="switchTab('calc')"><i class="fa-solid fa-calculator"></i> Scrap Calc</button>
+    </div>
+    <div class="nav-right">
+        <select id="globalUnit" onchange="renderAll()" style="background:var(--glass); color:var(--text); border:none; padding:8px; border-radius:8px">
+            <option value="lb">Lbs</option>
+            <option value="kg">Kgs</option>
+        </select>
+        <div class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></div>
+    </div>
+</nav>
+
 <div class="wrap">
-<header>
- <div>
-  <h1 style="margin:0;font-size:1.5em">Scrapn’ and <span style="color:var(--accent)">Freshen Up II</span></h1>
-  <div id="summary" class="small">Live Metals + Scrap Yard Feed</div>
- </div>
- <div id="status" class="badge">INITIALIZING</div>
-</header>
-
-<div class="controls">
- <select id="currency"></select>
- <select id="unitTop">
-  <option value="lb">Pound (lb)</option>
-  <option value="kg">Kilo (kg)</option>
-  <option value="oz">Ounce (oz)</option>
-  <option value="g">Gram (g)</option>
- </select>
- <button id="refreshBtn" class="primary" style="margin-left:auto">Sync Markets</button>
-</div>
-
-<div class="main-grid">
- <div>
-  <h3 class="small" style="text-transform:uppercase;letter-spacing:1px">Live Precious Metals</h3>
-  <div class="cards-grid" id="preciousGrid"></div>
-  
-  <h3 class="small" style="text-transform:uppercase;letter-spacing:1px;margin-top:30px">Scrap Yard Values</h3>
-  <div class="cards-grid" id="scrapGrid"></div>
-
-  <div id="detailsPanel" class="details-panel" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 id="detailsTitle" style="margin:0;color:var(--accent)">Category</h2>
-        <button onclick="document.getElementById('detailsPanel').style.display='none'" class="small" style="background:none;border:none;cursor:pointer">✕ Close</button>
+    <div id="marketView" class="view active">
+        <div class="section-title"><i class="fa-solid fa-gem"></i> Live Metals (Spot)</div>
+        <div class="grid" id="preciousGrid"></div>
+        <div class="section-title"><i class="fa-solid fa-truck-pickup"></i> Scrap Yard Categories</div>
+        <div class="grid" id="scrapGrid"></div>
     </div>
-    <div id="detailsContent"></div>
-  </div>
- </div>
 
- <div class="basket-card">
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-        <span class="small" style="text-transform:uppercase">Inventory Basket</span>
-        <div id="basketTotal" class="k-rate">$0.00</div>
-    </div>
-    <table class="entries">
-        <thead><tr><th>Item</th><th>Qty</th><th>Value</th><th></th></tr></thead>
-        <tbody id="entryBody"></tbody>
-    </table>
-    
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0">
-    
-    <div class="small" style="margin-bottom:10px">Quick Add Item</div>
-    <div style="display:grid;gap:10px">
-        <select id="itemCatSelect"></select>
-        <select id="itemSubSelect"></select>
-        <div style="display:flex;gap:5px">
-            <input type="number" id="itemQty" value="1" step="any" style="flex:1">
-            <select id="itemUnit" style="width:70px">
-                <option value="lb">lb</option>
-                <option value="kg">kg</option>
-                <option value="g">g</option>
-                <option value="oz">oz</option>
-            </select>
-            <button id="addItemBtn" class="primary">Add</button>
+    <div id="calcView" class="view">
+        <div class="calc-grid">
+            <div>
+                <div class="calc-panel">
+                    <label class="badge" style="margin-bottom:10px; display:inline-block">1. Material Category</label>
+                    <select id="calcCatSelect" onchange="updateCalcItems()"></select>
+                    <label class="badge" style="margin-bottom:10px; display:inline-block">2. Grade / Type</label>
+                    <select id="calcItemSelect"></select>
+                    <label class="badge" style="margin-bottom:10px; display:inline-block">3. Weight</label>
+                    <input type="number" id="calcQty" value="1" step="any">
+                    <button class="add-btn" onclick="addToBasket()">ADD TO INVENTORY</button>
+                </div>
+                <table class="calc-table">
+                    <thead><tr><th align="left">Item</th><th align="left">Qty</th><th align="right">Total</th><th></th></tr></thead>
+                    <tbody id="basketBody"></tbody>
+                </table>
+            </div>
+            <div style="position:sticky; top:100px; height:fit-content">
+                <div class="card" style="background:var(--accent); color:#000; border:none; cursor:default">
+                    <h3 style="color:#000; opacity:0.7">ESTIMATED PAYOUT</h3>
+                    <div class="price-hero" id="grandTotal" style="color:#000; font-size:3em">$0.00</div>
+                    <button onclick="clearBasket()" style="width:100%; border:1px solid rgba(0,0,0,0.1); background:none; padding:8px; border-radius:8px; font-weight:700; cursor:pointer">RESET LIST</button>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div style="margin-top:30px">
-        <div class="small">Live Data Debug</div>
-        <pre id="jsonOut"></pre>
-    </div>
-  </div>
- </div>
 </div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal-window" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></span>
+        <h2 id="modalTitle" style="color:var(--accent); margin-top:0">Breakdown</h2>
+        <div id="modalContent"></div>
+    </div>
 </div>
 
 <script>
-const SCRAP = {
- "Copper": [
-    {n:"Bare Bright Wire", p:4.90}, {n:"#1 Tubing", p:4.70}, {n:"#2 Tubing", p:4.60},
-    {n:"Tin Plated Wire", p:4.60}, {n:"Enamel Coated", p:4.60}, {n:"Light Copper", p:3.80},
-    {n:"Clean Alum/Copper Coils", p:2.30}, {n:"Irony Alum/Copper Coils", p:2.10}
- ],
- "Insulated Copper": [
-    {n:"Heavy Ins. (85%+)", p:3.20}, {n:"#1 Insulated (80%+)", p:3.05}, {n:"Romex 65%", p:2.60},
-    {n:"Communication 50%", p:1.60}, {n:"Clean Extension Cord", p:1.10}, {n:"Low Yield 35%", p:1.00},
-    {n:"Christmas Lights", p:0.20}, {n:"Insulated Heliax", p:1.70}, {n:"Aluminum MC", p:1.50}, {n:"Steel BX", p:0.50}
- ],
- "Brass": [
-    {n:"Yellow Brass", p:2.50}, {n:"Red Brass", p:2.60}, {n:"Clean Auto Radiators", p:2.25},
-    {n:"Radiator Cores", p:2.00}
- ],
- "Stainless Steel": [
-    {n:"304 Prepared", p:0.30}, {n:"304 Unprepared", p:0.15}, {n:"316 Stainless", p:0.40}
- ],
- "Aluminum": [
-    {n:"Alloy Wheels", p:0.85}, {n:"Extruded", p:0.75}, {n:"E.C. Wire", p:0.70}, {n:"Litho Plate", p:0.60},
-    {n:"MLC/New Clips", p:0.50}, {n:"Aluminum Siding", p:0.60}, {n:"Chrome Wheels", p:0.50},
-    {n:"Mixed Alum/Old Sheet", p:0.50}, {n:"Clean Alum Radiators", p:0.50}, {n:"Dirty Alum Radiators", p:0.15},
-    {n:"Cast Aluminum", p:0.50}, {n:"Aluminum Cans (<100lb)", p:0.45}, {n:"Aluminum Cans (>100lb)", p:0.48},
-    {n:"Insulated E.C.", p:0.40}, {n:"Pet Food Cans", p:0.15}
- ],
- "Lead & Batteries": [
-    {n:"Soft Lead", p:0.40}, {n:"Wheel Weights (Sorted)", p:0.15}, {n:"Wheel Weights (Unsorted)", p:0.10},
-    {n:"Lead Acid Batteries", p:0.15}, {n:"Steel Cased Forklift", p:0.10}
- ],
- "CBM / Motors": [
-    {n:"Small Electric Motors", p:0.30}, {n:"Large Electric Motors", p:0.20}, {n:"Light Ballasts", p:0.10},
-    {n:"Sealed Units", p:0.20}
- ],
- "Steel": [
-    {n:"Prepared #1", p:0.10}, {n:"Cast Iron", p:0.10}, {n:"Clean Cast Rotors", p:0.10},
-    {n:"Shredder/Plate", p:0.09}, {n:"Vehicles", p:0.09}, {n:"Unprepared Bulky", p:0.05},
-    {n:"Chain Link Fence", p:0.02}
- ]
-};
-
-const CFG = {
- TARGET: "https://data-asg.goldprice.org/dbXRates/USD",
- PROXIES: [u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, u => `https://corsproxy.io/?${encodeURIComponent(u)}`],
- LB: 1, KG: 0.453592, OZ: 16, G: 453.592, // Factors relative to LB
- PRECIOUS_OZ: 31.1035, // Troy oz to gram conversion for precious metals
- MOCK: { items: [{ curr:"USD", xauPrice:2340, xagPrice:28.50, xptPrice:980, xpdPrice:1020, pcXau:0.5, pcXag:-0.1, pcXpt:0.2, pcXpd:-0.4 }] }
+// Precious Metal State & Scrap Data from Document (9).pdf
+const SCRAP_DATA = {
+    "Copper": { icon: "fa-solid fa-bolt-lightning", items: [{n: "Bare Bright Wire", p: 4.90}, {n: "#1 Tubing (Clean)", p: 4.70}, {n: "#2 Tubing (Paint/Solder)", p: 4.60}, {n: "Tin Plated Bus", p: 4.60}, {n: "Light Copper (Roofing)", p: 3.80}, {n: "Clean Al/Cu Coils", p: 2.30}, {n: "Irony Al/Cu Coils", p: 2.10}] },
+    "Insulated Copper": { icon: "fa-solid fa-plug", items: [{n: "Heavy Ins. (85%+)", p: 3.20}, {n: "#1 Insulated (80%+)", p: 3.05}, {n: "Romex (65%)", p: 2.60}, {n: "Communication (50%)", p: 1.60}, {n: "Extension Cord (Clean)", p: 1.10}, {n: "Low Yield (35%)", p: 1.00}, {n: "Christmas Lights", p: 0.20}, {n: "Insulated Heliax", p: 1.70}, {n: "Aluminum MC", p: 1.50}, {n: "Steel BX", p: 0.50}] },
+    "Brass & Radiators": { icon: "fa-solid fa-faucet", items: [{n: "Yellow Brass (Clean)", p: 2.50}, {n: "Red Brass", p: 2.60}, {n: "Clean Auto Radiators", p: 2.25}, {n: "Radiator Cores", p: 2.00}] },
+    "Aluminum": { icon: "fa-solid fa-car", items: [{n: "Alloy Wheels", p: 0.85}, {n: "Extruded Aluminum", p: 0.75}, {n: "E.C. Wire (Clean)", p: 0.70}, {n: "Litho Plate", p: 0.60}, {n: "Aluminum Siding", p: 0.60}, {n: "Chrome Wheels", p: 0.50}, {n: "Mixed Aluminum Sheet", p: 0.50}, {n: "Clean Alum Radiators", p: 0.50}, {n: "Aluminum Cans", p: 0.48}, {n: "Pet Food Cans", p: 0.15}] },
+    "Stainless Steel": { icon: "fa-solid fa-kitchen-set", items: [{n: "316 Stainless", p: 0.40}, {n: "304 Prepared", p: 0.30}, {n: "304 Unprepared", p: 0.15}] },
+    "Motors & CBM": { icon: "fa-solid fa-gears", items: [{n: "Small Electric Motors", p: 0.30}, {n: "Large Electric Motors", p: 0.20}, {n: "Sealed Units", p: 0.20}, {n: "Light Ballasts", p: 0.10}] },
+    "Steel & Iron": { icon: "fa-solid fa-bridge", items: [{n: "Cast Iron", p: 0.10}, {n: "Clean Cast Rotors", p: 0.10}, {n: "Prepared #1 Steel", p: 0.10}, {n: "Vehicles (with Title)", p: 0.09}, {n: "Chain Link Fence", p: 0.02}] }
 };
 
 const state = {
- cache: null,
- basket: JSON.parse(localStorage.getItem("scrapBasket")||"[]")
+    theme: 'dark',
+    basket: JSON.parse(localStorage.getItem('scrap_basket') || '[]'),
+    live: { gold: 2350.40, silver: 28.15, platinum: 982.00, palladium: 1018.00 }
 };
 
-const el = {
- prec: preciousGrid, scrap: scrapGrid,
- curr: currency, unit: unitTop,
- status: status, summary: summary,
- refresh: refreshBtn, details: detailsPanel,
- detTitle: detailsTitle, detContent: detailsContent,
- catSel: itemCatSelect, subSel: itemSubSelect,
- qty: itemQty, itemUnit: itemUnit,
- addBtn: addItemBtn, basketBody: entryBody,
- basketTotal: basketTotal, json: jsonOut
-};
+const fmt = (v) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(v);
+const convert = (lbPrice) => document.getElementById('globalUnit').value === 'kg' ? lbPrice * 2.20462 : lbPrice;
 
-const fmt = v => Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-const trend = v => `<span class="${v>=0?'up':'down'}">${v>=0?'▲':'▼'} ${Math.abs(Number(v||0)).toFixed(2)}%</span>`;
-
-// Weight conversion: converts price from per-lb to the target unit
-const convertScrap = (pricePerLb, toUnit) => {
-    const factors = { lb:1, kg: 1/0.453592, oz: 1/16, g: 1/453.592 };
-    return pricePerLb * factors[toUnit];
-};
-
-async function sync(){
- el.status.textContent="SYNCING...";
- let data = CFG.MOCK;
- for(const p of CFG.PROXIES){
-  try{
-   const r=await fetch(p(CFG.TARGET));
-   if(r.ok){
-    const j=await r.json();
-    data = j.contents ? JSON.parse(j.contents) : j;
-    el.status.textContent="LIVE"; el.status.style.color="var(--success)";
-    break;
-   }
-  }catch(e){}
- }
- if(el.status.textContent === "SYNCING") { el.status.textContent="MOCK"; el.status.style.color="var(--danger)"; }
- state.cache = data.items[0];
- el.json.textContent = JSON.stringify(data, null, 2);
- el.curr.innerHTML = `<option>${state.cache.curr}</option>`;
- render();
+function switchTab(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(view + 'View').classList.add('active');
+    document.getElementById(view + 'Tab').classList.add('active');
 }
 
-function render(){
- const u = el.unit.value;
- // Render Precious Metals
- const pm = [
-    {n:"Gold", p:state.cache.xauPrice, c:state.cache.pcXau},
-    {n:"Silver", p:state.cache.xagPrice, c:state.cache.pcXag},
-    {n:"Platinum", p:state.cache.xptPrice, c:state.cache.pcXpt},
-    {n:"Palladium", p:state.cache.xpdPrice, c:state.cache.pcXpd}
- ];
- el.prec.innerHTML = pm.map(m => `
-    <div class="card clickable" onclick="showBreakdown('${m.n}', true)">
-        <div class="small">${m.n}</div>
-        <div class="k-rate">$${fmt(convertScrap(m.p * (16 / 1.09714), u))}</div>
-        <div class="small">${trend(m.c)}</div>
-    </div>
- `).join('');
-
- // Render Scrap Categories
- el.scrap.innerHTML = Object.keys(SCRAP).map(cat => {
-    const topItem = SCRAP[cat][0];
-    return `
-    <div class="card clickable" onclick="showBreakdown('${cat}', false)">
-        <div class="small">${cat}</div>
-        <div class="k-rate">$${fmt(convertScrap(topItem.p, u))}</div>
-        <div class="small">Per ${u} (starts at)</div>
-    </div>`;
- }).join('');
-
- renderBasket();
+function toggleTheme() {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', state.theme);
+    document.getElementById('themeIcon').className = state.theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
 }
 
-window.showBreakdown = (cat, isPrecious) => {
-    el.detTitle.textContent = cat;
-    el.details.style.display = 'block';
-    const u = el.unit.value;
-    let html = `<table class="rates-table"><thead><tr class="small"><th>Sub-Type</th><th align="right">Price / ${u}</th></tr></thead><tbody>`;
+function renderMarket() {
+    const unit = document.getElementById('globalUnit').value;
+    document.getElementById('preciousGrid').innerHTML = Object.entries(state.live).map(([name, price]) => `
+        <div class="card" onclick="openWindow('${name.toUpperCase()}', true)">
+            <i class="fa-solid fa-coins"></i>
+            <h3>${name.toUpperCase()}</h3>
+            <div class="price-hero">${fmt(price)}</div>
+            <div class="badge">Price / Troy Oz</div>
+        </div>
+    `).join('');
+
+    document.getElementById('scrapGrid').innerHTML = Object.keys(SCRAP_DATA).map(cat => `
+        <div class="card" onclick="openWindow('${cat}', false)">
+            <i class="${SCRAP_DATA[cat].icon}"></i>
+            <h3>${cat}</h3>
+            <div class="price-hero">${fmt(convert(SCRAP_DATA[cat].items[0].p))}</div>
+            <div class="badge">Starting / ${unit}</div>
+        </div>
+    `).join('');
+}
+
+function openWindow(cat, isLive) {
+    document.getElementById('modalTitle').innerText = cat + " Breakdown";
+    const unit = document.getElementById('globalUnit').value;
+    let html = `<table class="calc-table"><thead><tr><th>Grade / Karat</th><th align="right">Price/${isLive ? 'Oz' : unit}</th></tr></thead><tbody>`;
     
-    if(isPrecious) {
-        const p = cat === 'Gold' ? state.cache.xauPrice : cat === 'Silver' ? state.cache.xagPrice : cat === 'Platinum' ? state.cache.xptPrice : state.cache.xpdPrice;
-        const basePerLb = p * (16 / 1.09714);
-        [1, 0.5, 0.25, 0.1].forEach(factor => {
-            html += `<tr><td>${factor * 100}% Purity</td><td align="right" class="k-rate">$${fmt(convertScrap(basePerLb * factor, u))}</td></tr>`;
+    if (isLive && cat === 'GOLD') {
+        const karats = [10, 12, 14, 16, 18, 20, 22, 24];
+        karats.forEach(k => {
+            const price = (state.live.gold / 24) * k;
+            html += `<tr><td>${k}K Gold</td><td align="right" class="price-hero" style="font-size:1.2em">${fmt(price)}</td></tr>`;
         });
+    } else if (isLive) {
+        html += `<tr><td>Market Spot</td><td align="right" class="price-hero" style="font-size:1.2em">${fmt(state.live[cat.toLowerCase()])}</td></tr>`;
     } else {
-        SCRAP[cat].forEach(item => {
-            html += `<tr><td>${item.n}</td><td align="right" class="k-rate">$${fmt(convertScrap(item.p, u))}</td></tr>`;
+        SCRAP_DATA[cat].items.forEach(item => {
+            html += `<tr><td>${item.n}</td><td align="right" class="price-hero" style="font-size:1.2em">${fmt(convert(item.p))}</td></tr>`;
         });
     }
-    el.detContent.innerHTML = html + `</tbody></table>`;
-};
-
-function initSelectors(){
-    el.catSel.innerHTML = Object.keys(SCRAP).map(c => `<option value="${c}">${c}</option>`).join('');
-    el.catSel.onchange = () => {
-        const cat = el.catSel.value;
-        el.subSel.innerHTML = SCRAP[cat].map(i => `<option value="${i.p}">${i.n}</option>`).join('');
-    };
-    el.catSel.onchange();
+    document.getElementById('modalContent').innerHTML = html + `</tbody></table>`;
+    document.getElementById('modalOverlay').style.display = 'flex';
 }
 
-function renderBasket(){
-    el.basketBody.innerHTML = '';
+function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+
+function initCalc() {
+    const catSel = document.getElementById('calcCatSelect');
+    catSel.innerHTML = Object.keys(SCRAP_DATA).map(c => `<option value="${c}">${c}</option>`).join('');
+    updateCalcItems();
+    renderBasket();
+}
+
+function updateCalcItems() {
+    const cat = document.getElementById('calcCatSelect').value;
+    document.getElementById('calcItemSelect').innerHTML = SCRAP_DATA[cat].items.map(i => `<option value="${i.p}">${i.n}</option>`).join('');
+}
+
+function addToBasket() {
+    const itemSel = document.getElementById('calcItemSelect');
+    state.basket.push({ name: itemSel.options[itemSel.selectedIndex].text, rate: Number(itemSel.value), qty: Number(document.getElementById('calcQty').value), unit: document.getElementById('globalUnit').value });
+    localStorage.setItem('scrap_basket', JSON.stringify(state.basket));
+    renderBasket();
+}
+
+function renderBasket() {
+    const body = document.getElementById('basketBody');
+    body.innerHTML = '';
     let total = 0;
     state.basket.forEach((it, i) => {
-        const val = convertScrap(it.pricePerLb, it.unit) * it.qty;
-        total += val;
-        el.basketBody.insertAdjacentHTML('beforeend', `
-            <tr>
-                <td>${it.name}<br><span class="small">$${fmt(it.pricePerLb)}/lb</span></td>
-                <td>${it.qty}${it.unit}</td>
-                <td class="k-rate">$${fmt(val)}</td>
-                <td><span class="remove" onclick="removeItem(${i})">✕</span></td>
-            </tr>
-        `);
+        const lineVal = convert(it.rate) * it.qty;
+        total += lineVal;
+        body.innerHTML += `<tr><td>${it.name}</td><td>${it.qty} ${it.unit}</td><td align="right"><b>${fmt(lineVal)}</b></td><td align="right"><i class="fa-solid fa-trash-can" onclick="removeBasket(${i})" style="color:var(--danger); cursor:pointer"></i></td></tr>`;
     });
-    el.basketTotal.textContent = `$${fmt(total)}`;
+    document.getElementById('grandTotal').innerText = fmt(total);
 }
 
-window.removeItem = (i) => {
-    state.basket.splice(i, 1);
-    localStorage.setItem("scrapBasket", JSON.stringify(state.basket));
-    renderBasket();
-};
+function removeBasket(i) { state.basket.splice(i,1); localStorage.setItem('scrap_basket', JSON.stringify(state.basket)); renderBasket(); }
+function clearBasket() { state.basket = []; localStorage.removeItem('scrap_basket'); renderBasket(); }
+function renderAll() { renderMarket(); renderBasket(); }
 
-el.addBtn.onclick = () => {
-    const name = el.subSel.options[el.subSel.selectedIndex].text;
-    const pricePerLb = Number(el.subSel.value);
-    state.basket.push({ name, pricePerLb, qty: Number(el.qty.value), unit: el.itemUnit.value });
-    localStorage.setItem("scrapBasket", JSON.stringify(state.basket));
-    renderBasket();
-};
-
-el.refresh.onclick = sync;
-el.unit.onchange = render;
-
-initSelectors();
-sync();
-setInterval(sync, 120000);
+renderMarket();
+initCalc();
 </script>
 </body>
 </html>
