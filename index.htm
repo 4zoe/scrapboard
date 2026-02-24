@@ -29,7 +29,8 @@ nav {
  height: 70px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000;
 }
 .nav-brand { font-weight: 700; font-size: 1.4em; display: flex; align-items: center; gap: 10px; margin-right: 40px; }
-.nav-brand i { color: var(--accent); }
+.nav-brand i { color: var(--accent); transition: transform 0.2s; }
+.nav-brand i:hover { transform: scale(1.1) rotate(10deg); color: var(--accent2); }
 .nav-tabs { display: flex; gap: 8px; align-items: center; }
 .tab-btn { 
  background: none; border: none; color: var(--muted); padding: 8px 16px; cursor: pointer; 
@@ -47,7 +48,8 @@ nav {
 
 /* Layout */
 .wrap { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-.view { display: none; } .view.active { display: block; }
+.view { display: none; } .view.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .section-title { font-size: 0.8em; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin: 30px 0 15px; display: flex; align-items: center; gap: 10px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
@@ -60,7 +62,7 @@ nav {
 .card i { font-size: 1.5em; color: var(--accent); margin-bottom: 15px; }
 .price-hero { font-size: 1.8em; font-weight: 700; color: var(--accent2); margin: 10px 0; }
 
-/* Modal */
+/* Modals */
 .modal-overlay { 
  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); 
  backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000;
@@ -71,7 +73,7 @@ nav {
 }
 .close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--muted); font-size: 1.2em; }
 
-/* Calculator UI - New Layout */
+/* Calculator UI */
 .calc-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
 @media(max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
 .calc-panel { background: var(--glass); padding: 25px; border-radius: 20px; height: fit-content; }
@@ -92,11 +94,15 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
 <body data-theme="dark">
 
 <nav>
-    <div class="nav-brand"><i class="fa-solid fa-layer-group"></i> SCRAPBOARD</div>
+    <div class="nav-brand">
+        <i class="fa-solid fa-recycle" style="cursor:pointer" onclick="openAbout()" title="About SCRAPBOARD"></i> 
+        SCRAPBOARD
+    </div>
     <div class="nav-tabs">
         <button class="tab-btn active" id="marketTab" onclick="switchTab('market')"><i class="fa-solid fa-chart-line"></i> Market Watch</button>
         <button class="tab-btn" id="calcTab" onclick="switchTab('calc')"><i class="fa-solid fa-calculator"></i> Scrap Calc</button>
         <button class="tab-btn" id="devTab" onclick="switchTab('dev')"><i class="fa-solid fa-code"></i> Dev Data</button>
+        <button class="tab-btn" id="feedbackTab" onclick="switchTab('feedback')"><i class="fa-solid fa-envelope"></i> Feedback</button>
     </div>
     <div class="nav-right">
         <select id="globalUnit" onchange="renderAll()" style="background:var(--glass); color:var(--text); border:none; padding:8px; border-radius:8px">
@@ -153,6 +159,19 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
         <div class="section-title"><i class="fa-solid fa-server"></i> Live API Response (GoldPrice.org)</div>
         <pre id="devOutput">Loading API Data...</pre>
     </div>
+
+    <div id="feedbackView" class="view">
+        <div class="calc-panel" style="max-width: 600px; margin: 40px auto; text-align: center;">
+            <i class="fa-solid fa-envelope-open-text" style="font-size: 3em; color: var(--accent); margin-bottom: 20px;"></i>
+            <h2 style="margin-top: 0;">We'd love to hear from you!</h2>
+            <p style="color: var(--muted); margin-bottom: 30px; line-height: 1.6;">
+                Have a suggestion for SCRAPBOARD? Found a bug, or want to request a new yard category or feature? Send an email directly to the developer.
+            </p>
+            <a href="mailto:zoe.vandeburgh@icloud.com?subject=SCRAPBOARD%20Feedback" style="text-decoration: none;">
+                <button class="add-btn" style="width: auto; padding: 15px 40px;"><i class="fa-solid fa-paper-plane"></i> Email zoe.vandeburgh@icloud.com</button>
+            </a>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
@@ -160,6 +179,15 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
         <span class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></span>
         <h2 id="modalTitle" style="color:var(--accent); margin-top:0">Breakdown</h2>
         <div id="modalContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="aboutOverlay" onclick="closeAbout()">
+    <div class="modal-window" style="text-align:center; max-width: 400px;" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeAbout()"><i class="fa-solid fa-xmark"></i></span>
+        <i class="fa-solid fa-heart" style="font-size: 3em; color: var(--danger); margin-bottom: 20px;"></i>
+        <h2 style="margin-top:0; color: var(--text);">About SCRAPBOARD</h2>
+        <p style="font-size: 1.1em; color: var(--muted);">built by Zoë for Brooke with love</p>
     </div>
 </div>
 
@@ -240,10 +268,8 @@ const state = {
     liveAPI: null
 };
 
-// Formatting & Conversions
 const fmt = (v) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(v);
 
-// Convert a base LB price into the user's selected global unit.
 function convertYardUnit(lbPrice) {
     const unit = document.getElementById('globalUnit').value;
     if(unit === 'kg') return lbPrice * 2.20462;
@@ -256,68 +282,38 @@ function convertYardUnit(lbPrice) {
 function fetchLiveRates() {
     const TARGET_URL = 'https://data-asg.goldprice.org/dbXRates/USD';
     const RATES_API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(TARGET_URL);
-
     const OZ_TO_GRAM = 31.1035;
     const GRAM_TO_KG = 1000;
     const TOLA_TO_GRAM = 11.66;
-
-    // Standard Purities for exact calculation
-    const PURITIES = {
-        "24K": 1.000, "22K": 0.9167, "20K": 0.8333,
-        "18K": 0.7500, "16K": 0.6667, "14K": 0.5833,
-        "12K": 0.5000, "10K": 0.4167
-    };
+    const PURITIES = { "24K": 1.000, "22K": 0.9167, "20K": 0.8333, "18K": 0.7500, "16K": 0.6667, "14K": 0.5833, "12K": 0.5000, "10K": 0.4167 };
 
     fetch(RATES_API_URL)
       .then(r => r.json())
       .then(apiResponse => {
         const collection = {};
-
         apiResponse.items.forEach(item => {
           const currency = item.curr;
           const goldOZ = item.xauPrice;
           const silverOZ = item.xagPrice;
-
           const goldG = goldOZ / OZ_TO_GRAM;
-          const goldKG = goldG * GRAM_TO_KG;
-          const goldTola = goldG * TOLA_TO_GRAM;
-
           const silverG = silverOZ / OZ_TO_GRAM;
-          const silverKG = silverG * GRAM_TO_KG;
-          const silverTola = silverG * TOLA_TO_GRAM;
 
           collection[currency] = {
             gold_rates: {
-              Price_OZ: +goldOZ.toFixed(2),
-              Price_G: +goldG.toFixed(2),
-              Price_KG: +goldKG.toFixed(2),
-              Price_Tola: +goldTola.toFixed(2),
-              Price_24K: +(goldG * PURITIES["24K"]).toFixed(2),
-              Price_22K: +(goldG * PURITIES["22K"]).toFixed(2),
-              Price_20K: +(goldG * PURITIES["20K"]).toFixed(2),
-              Price_18K: +(goldG * PURITIES["18K"]).toFixed(2),
-              Price_16K: +(goldG * PURITIES["16K"]).toFixed(2),
-              Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
-              Price_12K: +(goldG * PURITIES["12K"]).toFixed(2),
-              Price_10K: +(goldG * PURITIES["10K"]).toFixed(2),
+              Price_OZ: +goldOZ.toFixed(2), Price_G: +goldG.toFixed(2), Price_KG: +(goldG * GRAM_TO_KG).toFixed(2), Price_Tola: +(goldG * TOLA_TO_GRAM).toFixed(2),
+              Price_24K: +(goldG * PURITIES["24K"]).toFixed(2), Price_22K: +(goldG * PURITIES["22K"]).toFixed(2), Price_20K: +(goldG * PURITIES["20K"]).toFixed(2),
+              Price_18K: +(goldG * PURITIES["18K"]).toFixed(2), Price_16K: +(goldG * PURITIES["16K"]).toFixed(2), Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
+              Price_12K: +(goldG * PURITIES["12K"]).toFixed(2), Price_10K: +(goldG * PURITIES["10K"]).toFixed(2),
             },
-            silver_rates: {
-              Price_OZ: +silverOZ.toFixed(2),
-              Price_G: +silverG.toFixed(2),
-              Price_KG: +silverKG.toFixed(2),
-              Price_Tola: +silverTola.toFixed(2)
-            }
+            silver_rates: { Price_OZ: +silverOZ.toFixed(2), Price_G: +silverG.toFixed(2), Price_KG: +(silverG * GRAM_TO_KG).toFixed(2), Price_Tola: +(silverG * TOLA_TO_GRAM).toFixed(2) }
           };
         });
 
-        // Store globally and render Dev Tab
         state.liveAPI = collection['USD'];
         document.getElementById("devOutput").textContent = JSON.stringify(collection, null, 2);
-        renderMarket(); // Re-render grid with fresh data
+        renderMarket();
       })
-      .catch(e => {
-        document.getElementById("devOutput").textContent = "Error loading API: " + e.message; 
-      });
+      .catch(e => { document.getElementById("devOutput").textContent = "Error loading API: " + e.message; });
 }
 
 /* -- UI & TAB NAVIGATION -- */
@@ -334,12 +330,14 @@ function toggleTheme() {
     document.getElementById('themeIcon').className = state.theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
 }
 
+function openAbout() { document.getElementById('aboutOverlay').style.display = 'flex'; }
+function closeAbout() { document.getElementById('aboutOverlay').style.display = 'none'; }
+
 /* -- RENDER MARKET VIEW -- */
 function renderMarket() {
     const unit = document.getElementById('globalUnit').value;
     const gGrid = document.getElementById('preciousGrid');
     
-    // Render Gold & Silver ONLY if API has loaded
     if (state.liveAPI) {
         gGrid.innerHTML = `
             <div class="card" onclick="openPreciousWindow('Gold')">
@@ -359,7 +357,6 @@ function renderMarket() {
         gGrid.innerHTML = `<div class="card"><h3 style="color:var(--muted)">Fetching Spot Prices...</h3></div>`;
     }
 
-    // Render Scrap Groups
     document.getElementById('scrapGrid').innerHTML = Object.keys(SCRAP_DATA).map(cat => `
         <div class="card" onclick="openScrapWindow('${cat}')">
             <i class="${SCRAP_DATA[cat].icon}"></i>
@@ -374,30 +371,22 @@ function renderMarket() {
 function openPreciousWindow(metal) {
     document.getElementById('modalTitle').innerText = metal + " Breakdown";
     const unit = document.getElementById('globalUnit').value;
-    
-    // Default to Grams for karat viewing if user has 'lb' selected (since Lb karats make no sense)
     const displayUnit = (unit === 'lb' || unit === 'kg') ? 'g' : unit; 
     let html = `<div class="badge" style="margin-bottom:15px">Displaying Per: ${displayUnit.toUpperCase()}</div>`;
     html += `<table class="calc-table"><thead><tr><th>Purity / Grade</th><th align="right">Price/${displayUnit}</th></tr></thead><tbody>`;
     
     if (metal === 'Gold') {
         const rates = state.liveAPI.gold_rates;
-        // Determine the base to use for the table
         const baseTarget = displayUnit === 'oz' ? rates.Price_OZ : displayUnit === 'g' ? rates.Price_G : rates.Price_G;
-        const perGramRatio = baseTarget / rates.Price_G; // factor to adjust the parsed gram karats
-        
+        const perGramRatio = baseTarget / rates.Price_G; 
         const karats = ["24K", "22K", "20K", "18K", "16K", "14K", "12K", "10K"];
         karats.forEach(k => {
-            const rawVal = rates["Price_" + k]; // This is per gram
-            const adjVal = rawVal * perGramRatio;
-            html += `<tr><td>${k} Gold</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(adjVal)}</td></tr>`;
+            html += `<tr><td>${k} Gold</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(rates["Price_" + k] * perGramRatio)}</td></tr>`;
         });
     } else {
         const r = state.liveAPI.silver_rates;
-        const val = displayUnit === 'oz' ? r.Price_OZ : r.Price_G;
-        html += `<tr><td>.999 Fine Silver</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(val)}</td></tr>`;
+        html += `<tr><td>.999 Fine Silver</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(displayUnit === 'oz' ? r.Price_OZ : r.Price_G)}</td></tr>`;
     }
-    
     document.getElementById('modalContent').innerHTML = html + `</tbody></table>`;
     document.getElementById('modalOverlay').style.display = 'flex';
 }
@@ -406,11 +395,7 @@ function openScrapWindow(cat) {
     document.getElementById('modalTitle').innerText = cat;
     const unit = document.getElementById('globalUnit').value;
     let html = `<table class="calc-table"><thead><tr><th>Material Grade</th><th align="right">Price/${unit}</th></tr></thead><tbody>`;
-    
-    SCRAP_DATA[cat].items.forEach(item => {
-        html += `<tr><td>${item.n}</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(convertYardUnit(item.p))}</td></tr>`;
-    });
-    
+    SCRAP_DATA[cat].items.forEach(item => { html += `<tr><td>${item.n}</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(convertYardUnit(item.p))}</td></tr>`; });
     document.getElementById('modalContent').innerHTML = html + `</tbody></table>`;
     document.getElementById('modalOverlay').style.display = 'flex';
 }
@@ -433,10 +418,7 @@ function updateCalcItems() {
 function addToBasket() {
     const itemSel = document.getElementById('calcItemSelect');
     state.basket.push({ 
-        name: itemSel.options[itemSel.selectedIndex].text, 
-        rate: Number(itemSel.value), // base LB rate
-        qty: Number(document.getElementById('calcQty').value), 
-        unit: document.getElementById('globalUnit').value 
+        name: itemSel.options[itemSel.selectedIndex].text, rate: Number(itemSel.value), qty: Number(document.getElementById('calcQty').value), unit: document.getElementById('globalUnit').value 
     });
     localStorage.setItem('scrapboard_basket', JSON.stringify(state.basket));
     renderBasket();
@@ -448,8 +430,6 @@ function renderBasket() {
     let total = 0;
     
     state.basket.forEach((it, i) => {
-        // If the item unit matches the global unit, use the standard conversion
-        // If it doesn't, we'd theoretically need cross-conversion, but for simplicity we convert the base rate to the saved unit.
         let displayRate = it.rate; 
         if(it.unit === 'kg') displayRate *= 2.20462;
         if(it.unit === 'oz') displayRate /= 16;
