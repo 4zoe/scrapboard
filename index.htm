@@ -1,145 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Metal Tracker Pro — Dev</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gold & Silver Live Prices</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
- --bg:#07121a; --card:#0b1b26; --muted:#9fb3c8;
- --accent:#ffd166; --accent2:#7ee7c7; --glass:rgba(255,255,255,0.03);
- --danger:#ff6b6b; --success:#2ecc71;
- --mono:ui-monospace,Menlo,monospace;
+  --bg:#0b0f14;
+  --card:#07101a;
+  --muted:#9fb3c8;
+  --accent:#ffd166;
+  --accent-2:#7ee7c7;
+  --glass: rgba(255,255,255,0.03);
+  --success:#2ecc71;
+  --danger:#ff6b6b;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui;background:linear-gradient(180deg,#041018,#071827);color:#e6f7ff;padding:22px}
-.wrap{max-width:1100px;margin:auto}
-.header{display:flex;justify-content:space-between;margin-bottom:18px}
-.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.05);color:inherit;padding:8px 10px;border-radius:8px;cursor:pointer}
-.btn.primary{background:linear-gradient(90deg,var(--accent),#ff9f1c);color:#041018;border:none;font-weight:700}
-.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
-.grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
-@media(max-width:980px){.grid{grid-template-columns:1fr}}
-.select,input{background:transparent;border:1px solid rgba(255,255,255,0.05);padding:8px;border-radius:8px;color:inherit}
-.rates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.rate-item{background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
-.rate-item h3{margin:0;font-size:13px}
-.rate-item p{margin:6px 0 0;font-weight:700;color:var(--accent2);font-family:var(--mono)}
-.json{background:#02121a;border-radius:8px;padding:12px;color:#bfeef0;font-family:var(--mono);font-size:12px;max-height:360px;overflow:auto}
-.terminal{background:#000a0f;border-radius:8px;padding:12px;color:#7ee7c7;font-family:var(--mono);font-size:12px;max-height:160px;overflow:auto}
-.pill{background:var(--glass);padding:6px 10px;border-radius:999px;font-size:12px}
-.meta{color:var(--muted);font-size:13px}
+body{
+  margin:0;
+  font-family:Inter,system-ui;
+  background:linear-gradient(180deg,#041018 0%, #071827 100%);
+  color:#e6f7ff;
+  padding:28px;
+  min-height: 100vh;
+}
+.wrap{max-width:980px;margin:0 auto}
+header{display:flex;gap:16px;margin-bottom:18px}
+.logo{
+  width:56px;height:56px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),#ff9f1c);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#041018;font-size:24px;
+}
+.controls{display:flex;gap:10px;align-items:center;margin:18px 0 22px;flex-wrap:wrap}
+select,button{background:var(--glass);border:1px solid rgba(255,255,255,0.1);color:inherit;padding:10px;border-radius:8px;cursor:pointer}
+button.primary{background:linear-gradient(90deg,var(--accent),#ff9f1c);color:#041018;border:none;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+@media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+.card{background:rgba(255,255,255,0.02);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03)}
+.rates-table{width:100%;border-collapse:collapse}
+.rates-table td{padding:12px 6px;border-top:1px dashed rgba(255,255,255,0.05)}
+.muted{color:var(--muted)}
+.k-rate{font-weight:700;color:var(--accent-2);font-size:1.1em}
+.trend{font-size: 0.85em; margin-left: 8px; font-weight: 400;}
+.up{color:var(--success)}
+.down{color:var(--danger)}
+.json-out{background:#02121a;padding:10px;border-radius:8px;font-family:monospace;font-size:12px;max-height:350px;overflow:auto}
 </style>
 </head>
 
 <body>
 <div class="wrap">
 
-<div class="header">
- <strong>Metal Tracker Pro — Dev</strong>
- <div>
-  <span id="status" class="pill">BOOT</span>
-  <button id="sync" class="btn primary">Refresh</button>
- </div>
+<header>
+<div class="logo">Au</div>
+<div>
+<h2>Live Gold & Silver Rates</h2>
+<div class="muted">Source: data-asg.goldprice.org</div>
 </div>
+</header>
 
-<div class="card" style="margin-bottom:16px">
- <select id="unit" class="select">
-  <option value="g">Gram</option>
-  <option value="kg">KG</option>
-  <option value="oz">Ounce</option>
-  <option value="tola">Tola</option>
- </select>
- <input id="qty" type="number" value="1" step="0.01" style="width:100px"/>
- <span class="meta">Total (Gold example):</span>
- <b id="calc">—</b>
+<div class="controls">
+<select id="currency"></select>
+<select id="unit">
+<option value="g">Gram</option>
+<option value="oz">Ounce</option>
+<option value="tola">Tola</option>
+<option value="kg">Kg</option>
+</select>
+<button id="refresh" class="primary">Refresh Now</button>
+<div style="flex:1"></div>
+<div id="status" class="muted">Connecting...</div>
 </div>
 
 <div class="grid">
- <div class="card">
-  <div id="rates" class="rates"></div>
-  <div class="terminal" id="log"></div>
- </div>
- <div class="card">
-  <div class="json" id="json"></div>
- </div>
+<div class="card">
+<table class="rates-table">
+<tbody id="body"></tbody>
+</table>
+</div>
+
+<div class="card">
+<div class="muted" style="margin-bottom:8px">Raw Data Feedback</div>
+<div id="json" class="json-out">{}</div>
+</div>
 </div>
 
 </div>
 
 <script>
-const OZ=31.1034768,KG=1000,TOLA=11.6638;
-const PURITIES={"24K":1,"22K":22/24,"21K":21/24,"18K":18/24,"14K":14/24,"10K":10/24};
+const TARGET="https://data-asg.goldprice.org/dbXRates/USD";
+const PROXIES=[
+  u=>`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`
+];
+
+const OZ=31.1035, KG=1000, TOLA=11.66;
+const PURITIES={24:1, 22:22/24, 21:21/24, 18:18/24, 14:14/24};
 
 const el={
- status:document.getElementById('status'),
- sync:document.getElementById('sync'),
+ body:document.getElementById('body'),
+ json:document.getElementById('json'),
+ currency:document.getElementById('currency'),
  unit:document.getElementById('unit'),
- qty:document.getElementById('qty'),
- calc:document.getElementById('calc'),
- rates:document.getElementById('rates'),
- log:document.getElementById('log'),
- json:document.getElementById('json')
+ status:document.getElementById('status')
 };
 
-// Commonly recycled metals with mock per-oz price
-const METALS={
- "Gold":5100,
- "Silver":82,
- "Aluminum":2,
- "Copper":4,
- "Brass":3.5,
- "Bronze":3.5,
- "Lead":1.5,
- "Zinc":2,
- "Tin":3,
- "Nickel":6,
- "Titanium":8,
- "Tungsten":25,
- "Cobalt":15,
- "Molybdenum":12,
- "Magnesium":4,
- "Platinum":1200,
- "Palladium":1800,
- "Rhodium":15000
-};
+let cache = null;
+let oldCache = null;
 
-const fmt=v=>Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+function r(v){return Number(v.toFixed(2));}
 
-function unitVal(price,u){
- return u==="g"?price/OZ:u==="kg"?price/OZ*KG:u==="tola"?price/OZ*TOLA:price;
+async function fetchProxy(){
+ let lastErr;
+ for(const p of PROXIES){
+  try{
+   const res=await fetch(p(TARGET));
+   const j=await res.json();
+   const data = j.contents ? JSON.parse(j.contents) : j;
+   if(data && data.items) return data;
+  }catch(e){lastErr=e;}
+ }
+ throw lastErr;
 }
 
-function logLine(s){
- el.log.textContent=new Date().toLocaleTimeString()+" › "+s+"\n"+el.log.textContent;
+function compute(api){
+ const c={};
+ api.items.forEach(i=>{
+  const cur=i.curr||"USD";
+  const g=i.xauPrice/OZ;
+  const s=i.xagPrice/OZ;
+  c[cur]={
+    gold: { oz:r(i.xauPrice), g:r(g), kg:r(g*KG), tola:r(g*TOLA) },
+    silver: { oz:r(i.xagPrice), g:r(s), kg:r(s*KG), tola:r(s*TOLA) }
+  };
+ });
+ return c;
+}
+
+function getTrend(cur, type, unit, newVal) {
+  if(!oldCache || !oldCache[cur]) return '';
+  const oldVal = oldCache[cur][type][unit];
+  if(newVal > oldVal) return `<span class="trend up">▲</span>`;
+  if(newVal < oldVal) return `<span class="trend down">▼</span>`;
+  return '';
 }
 
 function render(){
- el.rates.innerHTML="";
- const u=el.unit.value;
- for(const [metal,price] of Object.entries(METALS)){
-  const val=unitVal(price,u);
-  const node=document.createElement("div");
-  node.className="rate-item";
-  node.innerHTML=`<h3>${metal}</h3><p>${fmt(val)}</p>`;
-  el.rates.appendChild(node);
- }
- // total for example Gold
- el.calc.textContent="USD "+fmt((+el.qty.value||0)*unitVal(METALS["Gold"],u));
- el.json.textContent=JSON.stringify(METALS,null,2);
- logLine("Rendered metal rates.");
+ if(!cache) return;
+ const cur=el.currency.value;
+ const unit=el.unit.value;
+ const d=cache[cur];
+ if(!d) return;
+
+ let rows=[];
+ const gv = d.gold[unit];
+ const gTrend = getTrend(cur, 'gold', unit, gv);
+
+ rows.push(`<tr><td><b>Gold (24K)</b></td><td align=right class=k-rate>${gv}${gTrend}</td></tr>`);
+
+ Object.keys(PURITIES).forEach(k=>{
+   if(k==="24") return;
+   const kv = r(gv * PURITIES[k]);
+   rows.push(`<tr><td class=muted>${k}K Gold</td><td align=right>${kv}</td></tr>`);
+ });
+
+ const sv = d.silver[unit];
+ const sTrend = getTrend(cur, 'silver', unit, sv);
+ rows.push(`<tr><td><b>Silver</b></td><td align=right class=k-rate>${sv}${sTrend}</td></tr>`);
+
+ el.body.innerHTML=rows.join('');
+ el.json.textContent=JSON.stringify(cache, null, 2);
 }
 
-el.sync.onclick=render;
-[el.unit,el.qty].forEach(x=>x.oninput=render);
+async function load(){
+ el.status.textContent="Updating...";
+ try{
+  const api=await fetchProxy();
+  oldCache = cache; // Save current as old before updating
+  cache=compute(api);
 
-el.status.textContent="LIVE";
-el.status.style.background="#2ecc71";
+  if (el.currency.options.length === 0) {
+    el.currency.innerHTML=Object.keys(cache).map(c=>`<option>${c}</option>`).join('');
+    if(cache["USD"]) el.currency.value = "USD";
+  }
 
-render();
+  render();
+  el.status.textContent=`Live • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+ }catch(e){
+  el.status.textContent="Offline";
+  console.error(e);
+ }
+}
+
+document.getElementById('refresh').onclick=load;
+el.unit.onchange=render;
+el.currency.onchange=render;
+
+load();
+setInterval(load, 60000); // Refresh every minute
 </script>
+
 </body>
 </html>
