@@ -81,7 +81,10 @@ nav {
  width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border);
  background: var(--bg); color: var(--text);
 }
-.add-btn { background: var(--accent); color: #000; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.add-btn { background: var(--accent); color: #000; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+.print-btn { background: transparent; color: var(--text); border: 1px solid var(--border); width: 100%; padding: 15px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+.print-btn:hover { background: var(--glass); }
+
 .calc-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid var(--border); }
 .calc-table th { background: var(--glass); padding: 15px; text-align: left; font-size: 0.85em; color: var(--muted); }
 .calc-table td { padding: 15px; border-bottom: 1px solid var(--border); }
@@ -89,6 +92,21 @@ nav {
 
 /* Dev Tab */
 pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; overflow-x: auto; font-size: 13px; border: 1px solid var(--border); }
+
+/* Print Styles */
+@media print {
+    nav, .calc-panel, .theme-btn, .nav-tabs, .fa-trash-can { display: none !important; }
+    body { background: white !important; color: black !important; }
+    .wrap { margin: 0; padding: 0; max-width: 100%; }
+    .view { display: block !important; }
+    #marketView, #devView, #feedbackView { display: none !important; }
+    .calc-grid { display: block; }
+    .card { border: 1px solid #000; background: white; color: black; box-shadow: none; padding: 15px; border-radius: 8px; }
+    .calc-table { border: 1px solid #000; border-radius: 0; }
+    .calc-table th { background: #eee; color: #000; border-bottom: 2px solid #000; }
+    .calc-table td { border-bottom: 1px solid #ddd; }
+    .price-hero, .badge { color: black !important; background: none; }
+}
 </style>
 </head>
 <body data-theme="dark">
@@ -138,6 +156,7 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
                 <input type="number" id="calcQty" value="1" step="any">
                 
                 <button class="add-btn" onclick="addToBasket()">ADD TO LIST</button>
+                <button class="print-btn" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> PRINT RECEIPT</button>
             </div>
 
             <div>
@@ -186,7 +205,7 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     <div class="modal-window" style="text-align:center; max-width: 400px;" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeAbout()"><i class="fa-solid fa-xmark"></i></span>
         <i class="fa-solid fa-heart" style="font-size: 3em; color: var(--danger); margin-bottom: 20px;"></i>
-        <h2 style="margin-top:0; color: var(--text);">SCRAPBOARD v0.3</h2>
+        <h2 style="margin-top:0; color: var(--text);">SCRAPBOARD v0.4</h2>
         <p style="font-size: 1.1em; color: var(--muted);">Built by Zoë for Brooke with love!</p>
     </div>
 </div>
@@ -194,6 +213,7 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
 <script>
 /* -- DATA CONFIGURATION -- */
 const SCRAP_DATA = {
+    "Precious Metals": { isPrecious: true, icon: "fa-solid fa-gem", items: [] },
     "Copper": {
         icon: "fa-solid fa-bolt-lightning",
         items: [
@@ -224,10 +244,25 @@ const SCRAP_DATA = {
         icon: "fa-solid fa-car",
         items: [
             {n: "Alloy Wheels", p: 0.85}, {n: "Extruded Aluminum", p: 0.75},
+            {n: "Alum Cans (>100lb)", p: 0.48}, {n: "Alum Cans (<100lb)", p: 0.45},
             {n: "E.C. Wire (Clean)", p: 0.70}, {n: "Litho Plate", p: 0.60},
             {n: "Aluminum Siding", p: 0.60}, {n: "Chrome Wheels", p: 0.50},
             {n: "Mixed Aluminum Sheet", p: 0.50}, {n: "Clean Alum Radiators", p: 0.50},
-            {n: "Aluminum Cans", p: 0.48}, {n: "Pet Food Cans", p: 0.15}
+            {n: "Pet Food Cans", p: 0.15}
+        ]
+    },
+    "Lead & Batteries": {
+        icon: "fa-solid fa-car-battery",
+        items: [
+            {n: "Soft Lead", p: 0.40}, {n: "Lead Acid Batteries", p: 0.15},
+            {n: "Wheel Weights (Sorted)", p: 0.15}, {n: "Steel Cased Forklift", p: 0.10}
+        ]
+    },
+    "Glass, Plastic, Paper": {
+        icon: "fa-solid fa-box-open",
+        items: [
+            {n: "Clear Glass", p: 0.01}, {n: "Mixed Plastic", p: 0.05}, 
+            {n: "Cardboard/Paper", p: 0.02}
         ]
     },
     "E-Waste & Boards": {
@@ -270,12 +305,19 @@ const state = {
 
 const fmt = (v) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(v);
 
-function convertYardUnit(lbPrice) {
-    const unit = document.getElementById('globalUnit').value;
-    if(unit === 'kg') return lbPrice * 2.20462;
-    if(unit === 'oz') return lbPrice / 16;
-    if(unit === 'g') return lbPrice / 453.592;
-    return lbPrice;
+function getRate(item, unit) {
+    if (item.isPrecious) { // Base price 'p' is per GRAM
+        if (unit === 'g') return item.p;
+        if (unit === 'oz') return item.p * 31.1035; // Troy Oz
+        if (unit === 'lb') return item.p * 453.592;
+        if (unit === 'kg') return item.p * 1000;
+    } else { // Base price 'p' is per LB
+        if (unit === 'lb') return item.p;
+        if (unit === 'kg') return item.p * 2.20462;
+        if (unit === 'oz') return item.p / 16; // Standard Oz
+        if (unit === 'g') return item.p / 453.592;
+    }
+    return item.p;
 }
 
 /* -- API FETCHING SCRIPT -- */
@@ -283,8 +325,6 @@ function fetchLiveRates() {
     const TARGET_URL = 'https://data-asg.goldprice.org/dbXRates/USD';
     const RATES_API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(TARGET_URL);
     const OZ_TO_GRAM = 31.1035;
-    const GRAM_TO_KG = 1000;
-    const TOLA_TO_GRAM = 11.66;
     const PURITIES = { "24K": 1.000, "22K": 0.9167, "20K": 0.8333, "18K": 0.7500, "16K": 0.6667, "14K": 0.5833, "12K": 0.5000, "10K": 0.4167 };
 
     fetch(RATES_API_URL)
@@ -295,23 +335,46 @@ function fetchLiveRates() {
           const currency = item.curr;
           const goldOZ = item.xauPrice;
           const silverOZ = item.xagPrice;
+          const ptOZ = item.xptPrice || 0;
+          const pdOZ = item.xpdPrice || 0;
+          
           const goldG = goldOZ / OZ_TO_GRAM;
           const silverG = silverOZ / OZ_TO_GRAM;
+          const ptG = ptOZ / OZ_TO_GRAM;
+          const pdG = pdOZ / OZ_TO_GRAM;
 
           collection[currency] = {
             gold_rates: {
-              Price_OZ: +goldOZ.toFixed(2), Price_G: +goldG.toFixed(2), Price_KG: +(goldG * GRAM_TO_KG).toFixed(2), Price_Tola: +(goldG * TOLA_TO_GRAM).toFixed(2),
-              Price_24K: +(goldG * PURITIES["24K"]).toFixed(2), Price_22K: +(goldG * PURITIES["22K"]).toFixed(2), Price_20K: +(goldG * PURITIES["20K"]).toFixed(2),
-              Price_18K: +(goldG * PURITIES["18K"]).toFixed(2), Price_16K: +(goldG * PURITIES["16K"]).toFixed(2), Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
+              Price_OZ: +goldOZ.toFixed(2), Price_G: +goldG.toFixed(2),
+              Price_24K: +(goldG * PURITIES["24K"]).toFixed(2), Price_22K: +(goldG * PURITIES["22K"]).toFixed(2), 
+              Price_20K: +(goldG * PURITIES["20K"]).toFixed(2), Price_18K: +(goldG * PURITIES["18K"]).toFixed(2), 
+              Price_16K: +(goldG * PURITIES["16K"]).toFixed(2), Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
               Price_12K: +(goldG * PURITIES["12K"]).toFixed(2), Price_10K: +(goldG * PURITIES["10K"]).toFixed(2),
             },
-            silver_rates: { Price_OZ: +silverOZ.toFixed(2), Price_G: +silverG.toFixed(2), Price_KG: +(silverG * GRAM_TO_KG).toFixed(2), Price_Tola: +(silverG * TOLA_TO_GRAM).toFixed(2) }
+            silver_rates: { Price_OZ: +silverOZ.toFixed(2), Price_G: +silverG.toFixed(2) },
+            platinum_rates: { Price_OZ: +ptOZ.toFixed(2), Price_G: +ptG.toFixed(2) },
+            palladium_rates: { Price_OZ: +pdOZ.toFixed(2), Price_G: +pdG.toFixed(2) }
           };
         });
 
         state.liveAPI = collection['USD'];
         document.getElementById("devOutput").textContent = JSON.stringify(collection, null, 2);
-        renderMarket();
+        
+        // Populate Calculator Data
+        const r = state.liveAPI;
+        SCRAP_DATA["Precious Metals"].items = [
+            {n: "Gold (24K)", p: r.gold_rates.Price_24K, isPrecious: true},
+            {n: "Gold (22K)", p: r.gold_rates.Price_22K, isPrecious: true},
+            {n: "Gold (18K)", p: r.gold_rates.Price_18K, isPrecious: true},
+            {n: "Gold (14K)", p: r.gold_rates.Price_14K, isPrecious: true},
+            {n: "Gold (10K)", p: r.gold_rates.Price_10K, isPrecious: true},
+            {n: "Silver (.999)", p: r.silver_rates.Price_G, isPrecious: true},
+            {n: "Silver (Sterling)", p: r.silver_rates.Price_G * 0.925, isPrecious: true},
+            {n: "Platinum (Pure)", p: r.platinum_rates.Price_G, isPrecious: true},
+            {n: "Palladium (Pure)", p: r.palladium_rates.Price_G, isPrecious: true}
+        ];
+        
+        renderAll();
       })
       .catch(e => { document.getElementById("devOutput").textContent = "Error loading API: " + e.message; });
 }
@@ -352,16 +415,28 @@ function renderMarket() {
                 <div class="price-hero">${fmt(state.liveAPI.silver_rates.Price_OZ)}</div>
                 <div class="badge">Price / Troy Oz</div>
             </div>
+            <div class="card" onclick="openPreciousWindow('Platinum')">
+                <i class="fa-solid fa-ring" style="color:#e5e4e2"></i>
+                <h3>PLATINUM</h3>
+                <div class="price-hero">${fmt(state.liveAPI.platinum_rates.Price_OZ)}</div>
+                <div class="badge">Price / Troy Oz</div>
+            </div>
+            <div class="card" onclick="openPreciousWindow('Palladium')">
+                <i class="fa-solid fa-cubes" style="color:#d3d3d3"></i>
+                <h3>PALLADIUM</h3>
+                <div class="price-hero">${fmt(state.liveAPI.palladium_rates.Price_OZ)}</div>
+                <div class="badge">Price / Troy Oz</div>
+            </div>
         `;
     } else {
         gGrid.innerHTML = `<div class="card"><h3 style="color:var(--muted)">Fetching Spot Prices...</h3></div>`;
     }
 
-    document.getElementById('scrapGrid').innerHTML = Object.keys(SCRAP_DATA).map(cat => `
+    document.getElementById('scrapGrid').innerHTML = Object.keys(SCRAP_DATA).filter(k => k !== "Precious Metals").map(cat => `
         <div class="card" onclick="openScrapWindow('${cat}')">
             <i class="${SCRAP_DATA[cat].icon}"></i>
             <h3>${cat}</h3>
-            <div class="price-hero">${fmt(convertYardUnit(SCRAP_DATA[cat].items[0].p))}</div>
+            <div class="price-hero">${fmt(getRate(SCRAP_DATA[cat].items[0], unit))}</div>
             <div class="badge">Starting / ${unit}</div>
         </div>
     `).join('');
@@ -375,18 +450,25 @@ function openPreciousWindow(metal) {
     let html = `<div class="badge" style="margin-bottom:15px">Displaying Per: ${displayUnit.toUpperCase()}</div>`;
     html += `<table class="calc-table"><thead><tr><th>Purity / Grade</th><th align="right">Price/${displayUnit}</th></tr></thead><tbody>`;
     
+    const rates = state.liveAPI[metal.toLowerCase() + '_rates'];
+    const baseTarget = displayUnit === 'oz' ? rates.Price_OZ : rates.Price_G;
+    const perGramRatio = baseTarget / rates.Price_G; 
+
     if (metal === 'Gold') {
-        const rates = state.liveAPI.gold_rates;
-        const baseTarget = displayUnit === 'oz' ? rates.Price_OZ : displayUnit === 'g' ? rates.Price_G : rates.Price_G;
-        const perGramRatio = baseTarget / rates.Price_G; 
         const karats = ["24K", "22K", "20K", "18K", "16K", "14K", "12K", "10K"];
         karats.forEach(k => {
             html += `<tr><td>${k} Gold</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(rates["Price_" + k] * perGramRatio)}</td></tr>`;
         });
-    } else {
-        const r = state.liveAPI.silver_rates;
-        html += `<tr><td>.999 Fine Silver</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(displayUnit === 'oz' ? r.Price_OZ : r.Price_G)}</td></tr>`;
+    } else if (metal === 'Silver') {
+        html += `<tr><td>.999 Fine Silver</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(baseTarget)}</td></tr>`;
+        html += `<tr><td>Sterling (.925)</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(baseTarget * 0.925)}</td></tr>`;
+    } else if (metal === 'Platinum') {
+        html += `<tr><td>Pure Platinum</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(baseTarget)}</td></tr>`;
+        html += `<tr><td>.950 Platinum</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(baseTarget * 0.95)}</td></tr>`;
+    } else if (metal === 'Palladium') {
+        html += `<tr><td>Pure Palladium</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(baseTarget)}</td></tr>`;
     }
+    
     document.getElementById('modalContent').innerHTML = html + `</tbody></table>`;
     document.getElementById('modalOverlay').style.display = 'flex';
 }
@@ -395,7 +477,7 @@ function openScrapWindow(cat) {
     document.getElementById('modalTitle').innerText = cat;
     const unit = document.getElementById('globalUnit').value;
     let html = `<table class="calc-table"><thead><tr><th>Material Grade</th><th align="right">Price/${unit}</th></tr></thead><tbody>`;
-    SCRAP_DATA[cat].items.forEach(item => { html += `<tr><td>${item.n}</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(convertYardUnit(item.p))}</td></tr>`; });
+    SCRAP_DATA[cat].items.forEach(item => { html += `<tr><td>${item.n}</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(getRate(item, unit))}</td></tr>`; });
     document.getElementById('modalContent').innerHTML = html + `</tbody></table>`;
     document.getElementById('modalOverlay').style.display = 'flex';
 }
@@ -405,20 +487,31 @@ function closeModal() { document.getElementById('modalOverlay').style.display = 
 /* -- CALCULATOR LOGIC -- */
 function initCalc() {
     const catSel = document.getElementById('calcCatSelect');
+    const currentSelection = catSel.value;
     catSel.innerHTML = Object.keys(SCRAP_DATA).map(c => `<option value="${c}">${c}</option>`).join('');
+    if (currentSelection && SCRAP_DATA[currentSelection]) catSel.value = currentSelection;
     updateCalcItems();
     renderBasket();
 }
 
 function updateCalcItems() {
     const cat = document.getElementById('calcCatSelect').value;
-    document.getElementById('calcItemSelect').innerHTML = SCRAP_DATA[cat].items.map(i => `<option value="${i.p}">${i.n}</option>`).join('');
+    document.getElementById('calcItemSelect').innerHTML = SCRAP_DATA[cat].items.map((i, idx) => `<option value="${idx}">${i.n}</option>`).join('');
 }
 
 function addToBasket() {
-    const itemSel = document.getElementById('calcItemSelect');
+    const cat = document.getElementById('calcCatSelect').value;
+    const itemIdx = document.getElementById('calcItemSelect').value;
+    const selectedItem = SCRAP_DATA[cat].items[itemIdx];
+    const unit = document.getElementById('globalUnit').value;
+    
+    if (!selectedItem) return;
+
     state.basket.push({ 
-        name: itemSel.options[itemSel.selectedIndex].text, rate: Number(itemSel.value), qty: Number(document.getElementById('calcQty').value), unit: document.getElementById('globalUnit').value 
+        name: selectedItem.n, 
+        rate: getRate(selectedItem, unit), 
+        qty: Number(document.getElementById('calcQty').value), 
+        unit: unit 
     });
     localStorage.setItem('scrapboard_basket', JSON.stringify(state.basket));
     renderBasket();
@@ -430,17 +523,12 @@ function renderBasket() {
     let total = 0;
     
     state.basket.forEach((it, i) => {
-        let displayRate = it.rate; 
-        if(it.unit === 'kg') displayRate *= 2.20462;
-        if(it.unit === 'oz') displayRate /= 16;
-        if(it.unit === 'g') displayRate /= 453.592;
-
-        const lineVal = displayRate * it.qty;
+        const lineVal = it.rate * it.qty;
         total += lineVal;
         
         body.innerHTML += `
             <tr>
-                <td><b>${it.name}</b><br><span style="font-size:11px;color:var(--muted)">Rate: ${fmt(displayRate)}/${it.unit}</span></td>
+                <td><b>${it.name}</b><br><span style="font-size:11px;color:var(--muted)">Rate: ${fmt(it.rate)}/${it.unit}</span></td>
                 <td>${it.qty} ${it.unit}</td>
                 <td align="right"><b>${fmt(lineVal)}</b></td>
                 <td align="right"><i class="fa-solid fa-trash-can" onclick="removeBasket(${i})" style="color:var(--danger); cursor:pointer"></i></td>
@@ -451,7 +539,12 @@ function renderBasket() {
 
 function removeBasket(i) { state.basket.splice(i,1); localStorage.setItem('scrapboard_basket', JSON.stringify(state.basket)); renderBasket(); }
 function clearBasket() { state.basket = []; localStorage.removeItem('scrapboard_basket'); renderBasket(); }
-function renderAll() { renderMarket(); renderBasket(); }
+
+function renderAll() { 
+    renderMarket(); 
+    initCalc(); // re-init to apply unit conversions dynamically to dropdown rates
+    renderBasket(); 
+}
 
 // Startup
 fetchLiveRates();
