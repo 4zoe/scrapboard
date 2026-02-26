@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SCRAPBOARD</title>
+<title>SCRAPBOARD v0.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -24,16 +24,16 @@
 body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
 
 /* Navigation */
-nav { 
- background: var(--nav); padding: 0 20px; display: flex; align-items: center; 
+nav {
+ background: var(--nav); padding: 0 20px; display: flex; align-items: center;
  height: 70px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000;
 }
 .nav-brand { font-weight: 700; font-size: 1.4em; display: flex; align-items: center; gap: 10px; margin-right: 40px; }
 .nav-brand i { color: var(--accent); transition: transform 0.2s; }
 .nav-brand i:hover { transform: scale(1.1) rotate(10deg); color: var(--accent2); }
 .nav-tabs { display: flex; gap: 8px; align-items: center; }
-.tab-btn { 
- background: none; border: none; color: var(--muted); padding: 8px 16px; cursor: pointer; 
+.tab-btn {
+ background: none; border: none; color: var(--muted); padding: 8px 16px; cursor: pointer;
  font-weight: 600; border-radius: 8px; display: flex; align-items: center; gap: 8px;
 }
 .tab-btn:hover { background: var(--glass); }
@@ -41,8 +41,8 @@ nav {
 .nav-right { margin-left: auto; display: flex; align-items: center; gap: 15px; }
 
 /* Theme Toggle Button */
-.theme-btn { 
- cursor: pointer; background: var(--glass); border: 1px solid var(--border); 
+.theme-btn {
+ cursor: pointer; background: var(--glass); border: 1px solid var(--border);
  color: var(--text); padding: 10px; border-radius: 12px; width: 44px; text-align: center;
 }
 
@@ -54,8 +54,8 @@ nav {
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
 /* Cards */
-.card { 
- background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid var(--border); 
+.card {
+ background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid var(--border);
  cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
 .card:hover { transform: translateY(-4px); border-color: var(--accent); }
@@ -63,12 +63,12 @@ nav {
 .price-hero { font-size: 1.8em; font-weight: 700; color: var(--accent2); margin: 10px 0; }
 
 /* Modals */
-.modal-overlay { 
- position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); 
+.modal-overlay {
+ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
  backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000;
 }
-.modal-window { 
- background: var(--card); width: 90%; max-width: 550px; border-radius: 24px; padding: 30px; 
+.modal-window {
+ background: var(--card); width: 90%; max-width: 550px; border-radius: 24px; padding: 30px;
  border: 1px solid var(--border); position: relative; max-height: 80vh; overflow-y: auto;
 }
 .close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--muted); font-size: 1.2em; }
@@ -77,7 +77,7 @@ nav {
 .calc-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
 @media(max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
 .calc-panel { background: var(--glass); padding: 25px; border-radius: 20px; height: fit-content; }
-.calc-panel select, .calc-panel input { 
+.calc-panel select, .calc-panel input {
  width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border);
  background: var(--bg); color: var(--text);
 }
@@ -113,12 +113,12 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
 
 <nav>
     <div class="nav-brand">
-        <i class="fa-solid fa-recycle" style="cursor:pointer" onclick="openAbout()" title="About SCRAPBOARD"></i> 
+        <i class="fa-solid fa-recycle" style="cursor:pointer" onclick="openAbout()" title="About SCRAPBOARD"></i>
         SCRAPBOARD
     </div>
     <div class="nav-tabs">
-        <button class="tab-btn active" id="marketTab" onclick="switchTab('market')"><i class="fa-solid fa-chart-line"></i> Market Watch</button>
-        <button class="tab-btn" id="calcTab" onclick="switchTab('calc')"><i class="fa-solid fa-calculator"></i> Scrap It</button>
+        <button class="tab-btn active" id="marketTab" onclick="switchTab('market')"><i class="fa-solid fa-chart-line"></i> Marketplace</button>
+        <button class="tab-btn" id="calcTab" onclick="switchTab('calc')"><i class="fa-solid fa-calculator"></i> Scrap It!</button>
         <button class="tab-btn" id="devTab" onclick="switchTab('dev')"><i class="fa-solid fa-code"></i> Dev/API</button>
         <button class="tab-btn" id="feedbackTab" onclick="switchTab('feedback')"><i class="fa-solid fa-envelope"></i> Feedback</button>
     </div>
@@ -137,7 +137,7 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     <div id="marketView" class="view active">
         <div class="section-title"><i class="fa-solid fa-gem"></i> Precious Metals</div>
         <div class="grid" id="preciousGrid"></div>
-        
+
         <div class="section-title"><i class="fa-solid fa-truck-pickup"></i> Scrap Yard Categories</div>
         <div class="grid" id="scrapGrid"></div>
     </div>
@@ -148,15 +148,18 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
                 <h3 style="margin-top:0; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px">Scrap it!</h3>
                 <label class="badge" style="margin-bottom:10px; display:inline-block">1. Material Category</label>
                 <select id="calcCatSelect" onchange="updateCalcItems()"></select>
-                
+
                 <label class="badge" style="margin-bottom:10px; display:inline-block">2. Grade / Type</label>
                 <select id="calcItemSelect"></select>
-                
+
                 <label class="badge" style="margin-bottom:10px; display:inline-block">3. Weight</label>
                 <input type="number" id="calcQty" value="1" step="any">
-                
+
+                <label class="badge" style="margin-bottom:10px; display:inline-block; background: var(--accent2); color: #000;">4. Profit Margin: <span id="marginDisplay">0%</span></label>
+                <input type="range" id="marginSlider" min="0" max="50" value="0" step="5" oninput="updateMargin(this.value)" style="width:100%; margin-bottom:15px; accent-color: var(--accent2);">
+
                 <button class="add-btn" onclick="addToBasket()">ADD TO LIST</button>
-                <button class="print-btn" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> PRINT RECEIPT</button>
+                <button class="print-btn" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> PRINT</button>
             </div>
 
             <div>
@@ -184,10 +187,10 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
             <i class="fa-solid fa-envelope-open-text" style="font-size: 3em; color: var(--accent); margin-bottom: 20px;"></i>
             <h2 style="margin-top: 0;">I want hear from you!</h2>
             <p style="color: var(--muted); margin-bottom: 30px; line-height: 1.6;">
-                Have a suggestion for SCRAPBOARD? Found a bug, or want to request a new yard category or feature?
+                Have a suggestion for SCRAPBOARD?<br/> Found a bug, or want to request a new category?
             </p>
             <a href="mailto:zoe.vandeburgh@icloud.com?subject=SCRAPBOARD%20Feedback" style="text-decoration: none;">
-                <button class="add-btn" style="width: auto; padding: 15px 40px;"><i class="fa-solid fa-paper-plane"></i> Email Zoe</button>
+                <button class="add-btn" style="width: auto; padding: 15px 40px;"><i class="fa-solid fa-paper-plane"></i> Email</button>
             </a>
         </div>
     </div>
@@ -205,93 +208,112 @@ pre { background: #000; color: #7ee7c7; padding: 20px; border-radius: 15px; over
     <div class="modal-window" style="text-align:center; max-width: 400px;" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeAbout()"><i class="fa-solid fa-xmark"></i></span>
         <i class="fa-solid fa-heart" style="font-size: 3em; color: var(--danger); margin-bottom: 20px;"></i>
-        <h2 style="margin-top:0; color: var(--text);">SCRAPBOARD v0.4</h2>
+        <h2 style="margin-top:0; color: var(--text);">SCRAPBOARD v0.5</h2>
         <p style="font-size: 1.1em; color: var(--muted);">Built by Zoë for Brooke with love!</p>
     </div>
 </div>
 
 <script>
-/* -- DATA CONFIGURATION -- */
+/* -- DATA CONFIGURATION WITH 125 ITEMS -- */
 const SCRAP_DATA = {
     "Precious Metals": { isPrecious: true, icon: "fa-solid fa-gem", items: [] },
-    "Copper": {
-        icon: "fa-solid fa-bolt-lightning",
+    "E-Waste (Live Yield)": {
+        icon: "fa-solid fa-microchip", isYieldBased: true,
         items: [
-            {n: "Bare Bright Wire", p: 4.90}, {n: "#1 Tubing (Clean)", p: 4.70}, 
-            {n: "#2 Tubing (Paint/Solder)", p: 4.60}, {n: "Tin Plated Bus", p: 4.60},
-            {n: "Light Copper (Roofing)", p: 3.80}, {n: "Clean Al/Cu Coils", p: 2.30},
-            {n: "Irony Al/Cu Coils", p: 2.10}
+            {n: "Motherboards (High Grade)", goldYield: 0.12, pdYield: 0.01},
+            {n: "RAM (Gold Sticks)", goldYield: 0.25},
+            {n: "Ceramic CPUs", goldYield: 0.60, pdYield: 0.15}
         ]
     },
-    "Insulated Copper": {
-        icon: "fa-solid fa-plug",
+    "Catalytic Converters": {
+        icon: "fa-solid fa-van-shuttle", isYieldBased: true,
         items: [
-            {n: "Heavy Ins. (85%+)", p: 3.20}, {n: "#1 Insulated (80%+)", p: 3.05},
-            {n: "Romex (65%)", p: 2.60}, {n: "Communication (50%)", p: 1.60},
-            {n: "Extension Cord (Clean)", p: 1.10}, {n: "Low Yield (35%)", p: 1.00},
-            {n: "Christmas Lights", p: 0.20}, {n: "Insulated Heliax", p: 1.70},
-            {n: "Aluminum MC", p: 1.50}, {n: "Steel BX", p: 0.50}
+            {n: "Small Domestic", ptYield: 1.2, pdYield: 0.8, rhYield: 0.08},
+            {n: "Large Foreign", ptYield: 2.8, pdYield: 2.2, rhYield: 0.25}
         ]
     },
-    "Brass & Radiators": {
-        icon: "fa-solid fa-faucet",
-        items: [
-            {n: "Yellow Brass (Clean)", p: 2.50}, {n: "Red Brass", p: 2.60},
-            {n: "Clean Auto Radiators", p: 2.25}, {n: "Radiator Cores", p: 2.00}
+    "Copper & Wire": {
+        "icon": "fa-solid fa-bolt-lightning",
+        "items": [
+            {"n": "#1 COPPER", "p": 3.0}, {"n": "#1 INSUL COPPER – 50%", "p": 1.2}, {"n": "#1 INSUL COPPER – 65%", "p": 1.7},
+            {"n": "#1 INSUL COPPER – 85%", "p": 2.6}, {"n": "MACHINE WIRE", "p": 2.2}, {"n": "#2 COPPER", "p": 2.8},
+            {"n": "#2 INS CU 80%", "p": 1.7}, {"n": "#2 INSUL COPPER – 35%", "p": 0.5}, {"n": "#2 INSUL COPPER – 45%", "p": 1.0},
+            {"n": "#2 INSUL COPPER – 70%", "p": 1.9}, {"n": "#3 COPPER", "p": 2.5}, {"n": "AL/CU CUT-OFFS", "p": 0.15},
+            {"n": "AL/CU RADS – CLEAN", "p": 1.5}, {"n": "AL/CU RADS W/FE", "p": 1.3}, {"n": "BARE BRITE COPPER", "p": 3.1},
+            {"n": "COPPER", "p": 2.9}, {"n": "COPPER BREAKAGE", "p": 0.15}, {"n": "COPPER TURNINGS", "p": 2.0},
+            {"n": "COPPER X-MAS WIRE", "p": 0.15}, {"n": "CU TRANSFORMER", "p": 0.35}, {"n": "CU YOKES W/O GLASS", "p": 0.25},
+            {"n": "LARGE CU ELECTRIC MOTORS", "p": 0.15}, {"n": "SMALLCU ELECTRIC MOTORS", "p": 0.25}
         ]
     },
     "Aluminum": {
-        icon: "fa-solid fa-car",
-        items: [
-            {n: "Alloy Wheels", p: 0.85}, {n: "Extruded Aluminum", p: 0.75},
-            {n: "Alum Cans (>100lb)", p: 0.48}, {n: "Alum Cans (<100lb)", p: 0.45},
-            {n: "E.C. Wire (Clean)", p: 0.70}, {n: "Litho Plate", p: 0.60},
-            {n: "Aluminum Siding", p: 0.60}, {n: "Chrome Wheels", p: 0.50},
-            {n: "Mixed Aluminum Sheet", p: 0.50}, {n: "Clean Alum Radiators", p: 0.50},
-            {n: "Pet Food Cans", p: 0.15}
+        "icon": "fa-solid fa-car",
+        "items": [
+            {"n": "AL POP CANS", "p": 0.5}, {"n": "ALUM WHEELS", "p": 0.85}, {"n": "ALUMINUM SHEET", "p": 0.5},
+            {"n": "6061 SHEET/PLATE", "p": 0.75}, {"n": "ALUM EXT – CLEAN", "p": 0.85}, {"n": "6063 NB EXT", "p": 0.9},
+            {"n": "ALUM SIDING", "p": 0.7}, {"n": "2000 AL TRNG", "p": 0.35}, {"n": "3000 AL TRNG", "p": 0.3},
+            {"n": "6000 AL TRNG", "p": 0.3}, {"n": "6022 ALUMINUM", "p": 0.7}, {"n": "7000 AL TRNG", "p": 0.25},
+            {"n": "AL BRKG", "p": 0.13}, {"n": "ALUM CHROME WHEELS", "p": 0.5}
         ]
     },
-    "Lead & Batteries": {
-        icon: "fa-solid fa-car-battery",
-        items: [
-            {n: "Soft Lead", p: 0.40}, {n: "Lead Acid Batteries", p: 0.15},
-            {n: "Wheel Weights (Sorted)", p: 0.15}, {n: "Steel Cased Forklift", p: 0.10}
+    "Brass & Bronze": {
+        "icon": "fa-solid fa-faucet",
+        "items": [
+            {"n": "YELLOW BRASS", "p": 1.75}, {"n": "RED BRASS", "p": 1.8}, {"n": "HARD BRASS", "p": 2.0},
+            {"n": "ALUM BRONZE", "p": 1.6}, {"n": "70/30 BRASS", "p": 1.7}, {"n": "BRASS", "p": 1.75},
+            {"n": "BRASS TRNGS W/ FE", "p": 0.3}, {"n": "BRASS TURNINGS – HARD", "p": 1.6}, {"n": "BRASS TURNINGS – RED", "p": 1.6},
+            {"n": "BRASS TURNINGS – YELLOW", "p": 1.5}, {"n": "HARNESS WIRE", "p": 1.1}, {"n": "IRONY BRASS", "p": 0.5},
+            {"n": "ROD END BRASS", "p": 1.8}, {"n": "YELLOW BRASS W/ DIE CAST", "p": 0.6}
         ]
     },
-    "Glass, Plastic, Paper": {
-        icon: "fa-solid fa-box-open",
-        items: [
-            {n: "Clear Glass", p: 0.01}, {n: "Mixed Plastic", p: 0.05}, 
-            {n: "Cardboard/Paper", p: 0.02}
-        ]
-    },
-    "E-Waste & Boards": {
-        icon: "fa-solid fa-microchip",
-        items: [
-            {n: "Ceramic CPUs", p: 25.00}, {n: "RAM (Gold Plated)", p: 12.00},
-            {n: "Telecom High-Grade Boards", p: 4.50}, {n: "Motherboards", p: 1.50}, 
-            {n: "Hard Drives (w/ Board)", p: 0.50}, {n: "Power Supplies (Cut Wire)", p: 0.25}
-        ]
-    },
-    "Stainless Steel": {
-        icon: "fa-solid fa-kitchen-set",
-        items: [
-            {n: "316 Stainless", p: 0.40}, {n: "304 Prepared", p: 0.30}, {n: "304 Unprepared", p: 0.15}
-        ]
-    },
-    "Motors & CBM": {
-        icon: "fa-solid fa-gears",
-        items: [
-            {n: "Small Electric Motors", p: 0.30}, {n: "Large Electric Motors", p: 0.20},
-            {n: "Sealed Units", p: 0.20}, {n: "Light Ballasts", p: 0.10}
+    "Stainless & Nickel": {
+        "icon": "fa-solid fa-kitchen-set",
+        "items": [
+            {"n": "18/8 STAINLESS – CLEAN", "p": 0.32}, {"n": "316 STAINLESS", "p": 0.7}, {"n": "NICKEL", "p": 3.0},
+            {"n": "TITANIUM", "p": 0.3}, {"n": "18/8 SS/FE", "p": 0.15}, {"n": "201 STAINLESS", "p": 0.1},
+            {"n": "309 STAINLESS", "p": 0.7}, {"n": "310 STAINLESS", "p": 1.0}, {"n": "330 STAINLESS", "p": 1.5},
+            {"n": "STAINLESS TURNINGS", "p": 0.15}
         ]
     },
     "Steel & Iron": {
-        icon: "fa-solid fa-bridge",
-        items: [
-            {n: "Cast Iron", p: 0.10}, {n: "Clean Cast Rotors", p: 0.10},
-            {n: "Prepared #1 Steel", p: 0.10}, {n: "Vehicles (with Title)", p: 0.09},
-            {n: "Chain Link Fence", p: 0.02}
+        "icon": "fa-solid fa-bridge",
+        "items": [
+            {"n": "BUSHELING", "p": 0.13}, {"n": "DRUMS & ROTORS", "p": 0.12}, {"n": "MOTOR BLOCK", "p": 0.12},
+            {"n": "REBAR", "p": 0.06}, {"n": "SCRAP CAR", "p": 0.1}, {"n": "SHEET FE", "p": 0.1}, {"n": "YARD CAST", "p": 0.1},
+            {"n": "#2 BALING FE", "p": 0.11}, {"n": "ALUM CAST", "p": 0.5}, {"n": "ALUM EXT W/FE", "p": 0.7},
+            {"n": "ALUM TURNINGS W/FE", "p": 0.1}, {"n": "BREAKABLE CAST", "p": 0.08}, {"n": "CARBIDE", "p": 5.0},
+            {"n": "DIE CAST", "p": 0.4}, {"n": "RACKS", "p": 0.09}, {"n": "STEEL TURNINGS", "p": 0.02},
+            {"n": "TRANSFER CASE", "p": 9.0}, {"n": "PREPARED HEAVY MELT", "p": 0.06}, {"n": "PREPARED P&S", "p": 0.08},
+            {"n": "TORCHING", "p": 0.04}, {"n": "UNPREPARED HEAVY MELT", "p": 0.05}
+        ]
+    },
+    "Lead & Batteries": {
+        "icon": "fa-solid fa-car-battery",
+        "items": [
+            {"n": "BATTERIES", "p": 5.0}, {"n": "BATTERIES (BY WEIGHT)", "p": 0.12}, {"n": "LEAD", "p": 0.4},
+            {"n": "LEAD WHEEL WEIGHTS", "p": 0.1}, {"n": "STEELCASE BATTERIES", "p": 0.1}
+        ]
+    },
+    "Radiators": {
+        "icon": "fa-solid fa-house-fire",
+        "items": [
+            {"n": "ALUM RADS – CLEAN", "p": 0.55}, {"n": "AUTO RADS – CLEAN", "p": 1.6},
+            {"n": "AUTO RADS W/FE", "p": 0.8}, {"n": "HEATER CORES", "p": 1.5}
+        ]
+    },
+    "Motors & Parts": {
+        "icon": "fa-solid fa-gears",
+        "items": [
+            {"n": "AC PUMPS", "p": 0.2}, {"n": "ALTERNATORS", "p": 0.4}, {"n": "BALLASTS", "p": 0.12},
+            {"n": "BRKG MOTOR/TRANS", "p": 0.15}, {"n": "MOTOR W/ TRANS", "p": 0.15}, {"n": "SEALED UNITS", "p": 0.15},
+            {"n": "STARTERS", "p": 0.25}, {"n": "TRANSMISSIONS", "p": 18.0}
+        ]
+    },
+    "E-Waste (Static)": {
+        "icon": "fa-solid fa-laptop",
+        "items": [
+            {"n": "CELL PHONES W/ BATTS", "p": 1.15}, {"n": "CELL PHONES W/O BATTS", "p": 1.8},
+            {"n": "LAPTOP INTACT", "p": 0.4}, {"n": "LAPTOP W/ BROKEN SCREEN", "p": 0.2},
+            {"n": "CAT 5 INS", "p": 1.1}, {"n": "PC TOWERS", "p": 0.14}
         ]
     }
 };
@@ -300,24 +322,33 @@ const SCRAP_DATA = {
 const state = {
     theme: 'dark',
     basket: JSON.parse(localStorage.getItem('scrapboard_basket') || '[]'),
-    liveAPI: null
+    liveAPI: null,
+    margin: 0
 };
 
-const fmt = (v) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(v);
+const fmt = (v) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(v || 0);
 
 function getRate(item, unit) {
-    if (item.isPrecious) { // Base price 'p' is per GRAM
-        if (unit === 'g') return item.p;
-        if (unit === 'oz') return item.p * 31.1035; // Troy Oz
-        if (unit === 'lb') return item.p * 453.592;
-        if (unit === 'kg') return item.p * 1000;
-    } else { // Base price 'p' is per LB
-        if (unit === 'lb') return item.p;
-        if (unit === 'kg') return item.p * 2.20462;
-        if (unit === 'oz') return item.p / 16; // Standard Oz
-        if (unit === 'g') return item.p / 453.592;
+    let p = item.p || 0;
+    if (item.isPrecious) {
+        if (unit === 'g') return p;
+        if (unit === 'oz') return p * 31.1035;
+        if (unit === 'lb') return p * 453.592;
+        if (unit === 'kg') return p * 1000;
+    } else {
+        if (unit === 'lb') return p;
+        if (unit === 'kg') return p * 2.20462;
+        if (unit === 'oz') return p / 16;
+        if (unit === 'g') return p / 453.592;
     }
-    return item.p;
+    return p;
+}
+
+/* -- MARGIN LOGIC -- */
+function updateMargin(val) {
+    state.margin = val / 100;
+    document.getElementById('marginDisplay').innerText = val + "%";
+    renderBasket();
 }
 
 /* -- API FETCHING SCRIPT -- */
@@ -330,53 +361,46 @@ function fetchLiveRates() {
     fetch(RATES_API_URL)
       .then(r => r.json())
       .then(apiResponse => {
-        const collection = {};
-        apiResponse.items.forEach(item => {
-          const currency = item.curr;
-          const goldOZ = item.xauPrice;
-          const silverOZ = item.xagPrice;
-          const ptOZ = item.xptPrice || 0;
-          const pdOZ = item.xpdPrice || 0;
-          
-          const goldG = goldOZ / OZ_TO_GRAM;
-          const silverG = silverOZ / OZ_TO_GRAM;
-          const ptG = ptOZ / OZ_TO_GRAM;
-          const pdG = pdOZ / OZ_TO_GRAM;
+        const item = apiResponse.items[0];
+        const goldG = item.xauPrice / OZ_TO_GRAM;
+        const silverG = item.xagPrice / OZ_TO_GRAM;
+        const ptG = (item.xptPrice || 900) / OZ_TO_GRAM;
+        const pdG = (item.xpdPrice || 1000) / OZ_TO_GRAM;
 
-          collection[currency] = {
+        state.liveAPI = {
             gold_rates: {
-              Price_OZ: +goldOZ.toFixed(2), Price_G: +goldG.toFixed(2),
-              Price_24K: +(goldG * PURITIES["24K"]).toFixed(2), Price_22K: +(goldG * PURITIES["22K"]).toFixed(2), 
-              Price_20K: +(goldG * PURITIES["20K"]).toFixed(2), Price_18K: +(goldG * PURITIES["18K"]).toFixed(2), 
-              Price_16K: +(goldG * PURITIES["16K"]).toFixed(2), Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
-              Price_12K: +(goldG * PURITIES["12K"]).toFixed(2), Price_10K: +(goldG * PURITIES["10K"]).toFixed(2),
+                Price_OZ: +item.xauPrice.toFixed(2), Price_G: +goldG.toFixed(2),
+                Price_24K: +(goldG * PURITIES["24K"]).toFixed(2), Price_22K: +(goldG * PURITIES["22K"]).toFixed(2),
+                Price_20K: +(goldG * PURITIES["20K"]).toFixed(2), Price_18K: +(goldG * PURITIES["18K"]).toFixed(2),
+                Price_16K: +(goldG * PURITIES["16K"]).toFixed(2), Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
+                Price_12K: +(goldG * PURITIES["12K"]).toFixed(2), Price_10K: +(goldG * PURITIES["10K"]).toFixed(2),
             },
-            silver_rates: { Price_OZ: +silverOZ.toFixed(2), Price_G: +silverG.toFixed(2) },
-            platinum_rates: { Price_OZ: +ptOZ.toFixed(2), Price_G: +ptG.toFixed(2) },
-            palladium_rates: { Price_OZ: +pdOZ.toFixed(2), Price_G: +pdG.toFixed(2) }
-          };
-        });
+            silver_rates: { Price_OZ: +item.xagPrice.toFixed(2), Price_G: +silverG.toFixed(2) },
+            platinum_rates: { Price_OZ: +(item.xptPrice || 900).toFixed(2), Price_G: +ptG.toFixed(2) },
+            palladium_rates: { Price_OZ: +(item.xpdPrice || 1000).toFixed(2), Price_G: +pdG.toFixed(2) },
+            gold_raw: goldG, palladium_raw: pdG, platinum_raw: ptG, rhodium_raw: 145.00
+        };
 
-        state.liveAPI = collection['USD'];
-        document.getElementById("devOutput").textContent = JSON.stringify(collection, null, 2);
-        
-        // Populate Calculator Data
-        const r = state.liveAPI;
+        document.getElementById("devOutput").textContent = JSON.stringify(apiResponse, null, 2);
+
+        // Update Calculated Yields
+        SCRAP_DATA["E-Waste (Live Yield)"].items.forEach(i => { i.p = (i.goldYield||0)*state.liveAPI.gold_raw + (i.pdYield||0)*state.liveAPI.palladium_raw; });
+        SCRAP_DATA["Catalytic Converters"].items.forEach(i => { i.p = (i.ptYield||0)*state.liveAPI.platinum_raw + (i.pdYield||0)*state.liveAPI.palladium_raw + (i.rhYield||0)*state.liveAPI.rhodium_raw; });
+
+        // Update Precious Metals Data for Modal
         SCRAP_DATA["Precious Metals"].items = [
-            {n: "Gold (24K)", p: r.gold_rates.Price_24K, isPrecious: true},
-            {n: "Gold (22K)", p: r.gold_rates.Price_22K, isPrecious: true},
-            {n: "Gold (18K)", p: r.gold_rates.Price_18K, isPrecious: true},
-            {n: "Gold (14K)", p: r.gold_rates.Price_14K, isPrecious: true},
-            {n: "Gold (10K)", p: r.gold_rates.Price_10K, isPrecious: true},
-            {n: "Silver (.999)", p: r.silver_rates.Price_G, isPrecious: true},
-            {n: "Silver (Sterling)", p: r.silver_rates.Price_G * 0.925, isPrecious: true},
-            {n: "Platinum (Pure)", p: r.platinum_rates.Price_G, isPrecious: true},
-            {n: "Palladium (Pure)", p: r.palladium_rates.Price_G, isPrecious: true}
+            {n: "Gold (24K)", p: state.liveAPI.gold_rates.Price_24K, isPrecious: true},
+            {n: "Silver (.999)", p: state.liveAPI.silver_rates.Price_G, isPrecious: true},
+            {n: "Platinum (Pure)", p: state.liveAPI.platinum_rates.Price_G, isPrecious: true},
+            {n: "Palladium (Pure)", p: state.liveAPI.palladium_rates.Price_G, isPrecious: true}
         ];
-        
+
         renderAll();
       })
-      .catch(e => { document.getElementById("devOutput").textContent = "Error loading API: " + e.message; });
+      .catch(e => {
+          document.getElementById("devOutput").textContent = "Error loading API: " + e.message + "\n\nFallback prices active.";
+          renderAll(); // Still render UI even if API fails
+      });
 }
 
 /* -- UI & TAB NAVIGATION -- */
@@ -400,30 +424,30 @@ function closeAbout() { document.getElementById('aboutOverlay').style.display = 
 function renderMarket() {
     const unit = document.getElementById('globalUnit').value;
     const gGrid = document.getElementById('preciousGrid');
-    
+
     if (state.liveAPI) {
         gGrid.innerHTML = `
             <div class="card" onclick="openPreciousWindow('Gold')">
                 <i class="fa-solid fa-coins"></i>
-                <h3>GOLD</h3>
+                <h3>Gold</h3>
                 <div class="price-hero">${fmt(state.liveAPI.gold_rates.Price_OZ)}</div>
                 <div class="badge">Price / Troy Oz</div>
             </div>
             <div class="card" onclick="openPreciousWindow('Silver')">
                 <i class="fa-solid fa-coins" style="color:#bdc3c7"></i>
-                <h3>SILVER</h3>
+                <h3>Sliver</h3>
                 <div class="price-hero">${fmt(state.liveAPI.silver_rates.Price_OZ)}</div>
                 <div class="badge">Price / Troy Oz</div>
             </div>
             <div class="card" onclick="openPreciousWindow('Platinum')">
                 <i class="fa-solid fa-ring" style="color:#e5e4e2"></i>
-                <h3>PLATINUM</h3>
+                <h3>Platinum</h3>
                 <div class="price-hero">${fmt(state.liveAPI.platinum_rates.Price_OZ)}</div>
                 <div class="badge">Price / Troy Oz</div>
             </div>
             <div class="card" onclick="openPreciousWindow('Palladium')">
                 <i class="fa-solid fa-cubes" style="color:#d3d3d3"></i>
-                <h3>PALLADIUM</h3>
+                <h3>Palladium</h3>
                 <div class="price-hero">${fmt(state.liveAPI.palladium_rates.Price_OZ)}</div>
                 <div class="badge">Price / Troy Oz</div>
             </div>
@@ -432,27 +456,31 @@ function renderMarket() {
         gGrid.innerHTML = `<div class="card"><h3 style="color:var(--muted)">Fetching Spot Prices...</h3></div>`;
     }
 
-    document.getElementById('scrapGrid').innerHTML = Object.keys(SCRAP_DATA).filter(k => k !== "Precious Metals").map(cat => `
+    document.getElementById('scrapGrid').innerHTML = Object.keys(SCRAP_DATA).filter(k => k !== "Precious Metals").map(cat => {
+        const firstPrice = SCRAP_DATA[cat].items.length > 0 ? getRate(SCRAP_DATA[cat].items[0], unit) : 0;
+        return `
         <div class="card" onclick="openScrapWindow('${cat}')">
             <i class="${SCRAP_DATA[cat].icon}"></i>
             <h3>${cat}</h3>
-            <div class="price-hero">${fmt(getRate(SCRAP_DATA[cat].items[0], unit))}</div>
+            <div class="price-hero">${fmt(firstPrice)}</div>
             <div class="badge">Starting / ${unit}</div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 /* -- MODAL LOGIC -- */
 function openPreciousWindow(metal) {
+    if(!state.liveAPI) return;
     document.getElementById('modalTitle').innerText = metal + " Breakdown";
     const unit = document.getElementById('globalUnit').value;
-    const displayUnit = (unit === 'lb' || unit === 'kg') ? 'g' : unit; 
+    const displayUnit = (unit === 'lb' || unit === 'kg') ? 'g' : unit;
     let html = `<div class="badge" style="margin-bottom:15px">Displaying Per: ${displayUnit.toUpperCase()}</div>`;
     html += `<table class="calc-table"><thead><tr><th>Purity / Grade</th><th align="right">Price/${displayUnit}</th></tr></thead><tbody>`;
-    
+
     const rates = state.liveAPI[metal.toLowerCase() + '_rates'];
     const baseTarget = displayUnit === 'oz' ? rates.Price_OZ : rates.Price_G;
-    const perGramRatio = baseTarget / rates.Price_G; 
+    const perGramRatio = baseTarget / rates.Price_G;
 
     if (metal === 'Gold') {
         const karats = ["24K", "22K", "20K", "18K", "16K", "14K", "12K", "10K"];
@@ -468,7 +496,7 @@ function openPreciousWindow(metal) {
     } else if (metal === 'Palladium') {
         html += `<tr><td>Pure Palladium</td><td align="right" class="price-hero" style="font-size:1.1em">${fmt(baseTarget)}</td></tr>`;
     }
-    
+
     document.getElementById('modalContent').innerHTML = html + `</tbody></table>`;
     document.getElementById('modalOverlay').style.display = 'flex';
 }
@@ -504,14 +532,14 @@ function addToBasket() {
     const itemIdx = document.getElementById('calcItemSelect').value;
     const selectedItem = SCRAP_DATA[cat].items[itemIdx];
     const unit = document.getElementById('globalUnit').value;
-    
+
     if (!selectedItem) return;
 
-    state.basket.push({ 
-        name: selectedItem.n, 
-        rate: getRate(selectedItem, unit), 
-        qty: Number(document.getElementById('calcQty').value), 
-        unit: unit 
+    state.basket.push({
+        name: selectedItem.n,
+        rate: getRate(selectedItem, unit),
+        qty: Number(document.getElementById('calcQty').value),
+        unit: unit
     });
     localStorage.setItem('scrapboard_basket', JSON.stringify(state.basket));
     renderBasket();
@@ -521,11 +549,11 @@ function renderBasket() {
     const body = document.getElementById('basketBody');
     body.innerHTML = '';
     let total = 0;
-    
+
     state.basket.forEach((it, i) => {
         const lineVal = it.rate * it.qty;
         total += lineVal;
-        
+
         body.innerHTML += `
             <tr>
                 <td><b>${it.name}</b><br><span style="font-size:11px;color:var(--muted)">Rate: ${fmt(it.rate)}/${it.unit}</span></td>
@@ -534,21 +562,24 @@ function renderBasket() {
                 <td align="right"><i class="fa-solid fa-trash-can" onclick="removeBasket(${i})" style="color:var(--danger); cursor:pointer"></i></td>
             </tr>`;
     });
-    document.getElementById('grandTotal').innerText = fmt(total);
+
+    // Apply Margin
+    const payout = total * (1 - state.margin);
+    document.getElementById('grandTotal').innerText = fmt(payout);
 }
 
 function removeBasket(i) { state.basket.splice(i,1); localStorage.setItem('scrapboard_basket', JSON.stringify(state.basket)); renderBasket(); }
 function clearBasket() { state.basket = []; localStorage.removeItem('scrapboard_basket'); renderBasket(); }
 
-function renderAll() { 
-    renderMarket(); 
-    initCalc(); // re-init to apply unit conversions dynamically to dropdown rates
-    renderBasket(); 
+function renderAll() {
+    renderMarket();
+    initCalc();
+    renderBasket();
 }
 
 // Startup
-fetchLiveRates();
-initCalc();
+renderAll(); // Renders static data instantly
+fetchLiveRates(); // Updates dynamic data in background
 </script>
 </body>
 </html>
