@@ -542,6 +542,9 @@ function addToBasket() {
 }
 
 async function renderBasket() {
+    const quoteRequestToken = (state.quoteRequestToken || 0) + 1;
+    state.quoteRequestToken = quoteRequestToken;
+
     const body = document.getElementById('basketBody');
     body.innerHTML = '';
     let total = 0;
@@ -573,6 +576,11 @@ async function renderBasket() {
             rate: it.rate
         }));
         const quote = await apiClient.getQuote(lineItems, state.margin);
+
+        if (quoteRequestToken !== state.quoteRequestToken) {
+            return;
+        }
+
         document.getElementById('grandTotal').innerText = fmt(quote.payout);
     } catch (err) {
         console.warn('Quote API fallback to client calc:', err.message);
