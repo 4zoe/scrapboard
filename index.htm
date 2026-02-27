@@ -351,43 +351,39 @@ function updateMargin(val) {
     renderBasket();
 }
 
-/* -- API FETCHING SCRIPT -- */
-function fetchLiveRates() {
-    const TARGET_URL = 'https://data-asg.goldprice.org/dbXRates/USD';
-    const RATES_API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(TARGET_URL);
-    const OZ_TO_GRAM = 31.1035;
-    const PURITIES = { "24K": 1.000, "22K": 0.9167, "20K": 0.8333, "18K": 0.7500, "16K": 0.6667, "14K": 0.5833, "12K": 0.5000, "10K": 0.4167 };
+/* -- API CLIENT + LIVE DATA FETCH -- */
+const API_BASE_URL = window.SCRAPBOARD_API_BASE || 'http://localhost:3000';
 
-    fetch(RATES_API_URL)
-      .then(r => r.json())
-      .then(apiResponse => {
-        const item = apiResponse.items[0];
-        const goldG = item.xauPrice / OZ_TO_GRAM;
-        const silverG = item.xagPrice / OZ_TO_GRAM;
-        const ptG = (item.xptPrice || 900) / OZ_TO_GRAM;
-        const pdG = (item.xpdPrice || 1000) / OZ_TO_GRAM;
+const apiClient = {
+    async getLiveRates() {
+        const response = await fetch(`${API_BASE_URL}/prices/live`);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        return response.json();
+    },
+    async getQuote(lineItems, margin) {
+        const response = await fetch(`${API_BASE_URL}/quote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lineItems, margin })
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || `Quote API error: ${response.status}`);
+        }
+        return response.json();
+    }
+};
 
-        state.liveAPI = {
-            gold_rates: {
-                Price_OZ: +item.xauPrice.toFixed(2), Price_G: +goldG.toFixed(2),
-                Price_24K: +(goldG * PURITIES["24K"]).toFixed(2), Price_22K: +(goldG * PURITIES["22K"]).toFixed(2),
-                Price_20K: +(goldG * PURITIES["20K"]).toFixed(2), Price_18K: +(goldG * PURITIES["18K"]).toFixed(2),
-                Price_16K: +(goldG * PURITIES["16K"]).toFixed(2), Price_14K: +(goldG * PURITIES["14K"]).toFixed(2),
-                Price_12K: +(goldG * PURITIES["12K"]).toFixed(2), Price_10K: +(goldG * PURITIES["10K"]).toFixed(2),
-            },
-            silver_rates: { Price_OZ: +item.xagPrice.toFixed(2), Price_G: +silverG.toFixed(2) },
-            platinum_rates: { Price_OZ: +(item.xptPrice || 900).toFixed(2), Price_G: +ptG.toFixed(2) },
-            palladium_rates: { Price_OZ: +(item.xpdPrice || 1000).toFixed(2), Price_G: +pdG.toFixed(2) },
-            gold_raw: goldG, palladium_raw: pdG, platinum_raw: ptG, rhodium_raw: 145.00
-        };
+async function fetchLiveRates() {
+    try {
+        const apiResponse = await apiClient.getLiveRates();
+        state.liveAPI = apiResponse.liveAPI;
 
-        document.getElementById("devOutput").textContent = JSON.stringify(apiResponse, null, 2);
+        document.getElementById("devOutput").textContent = JSON.stringify(apiResponse.source, null, 2);
 
-        // Update Calculated Yields
         SCRAP_DATA["E-Waste (Live Yield)"].items.forEach(i => { i.p = (i.goldYield||0)*state.liveAPI.gold_raw + (i.pdYield||0)*state.liveAPI.palladium_raw; });
         SCRAP_DATA["Catalytic Converters"].items.forEach(i => { i.p = (i.ptYield||0)*state.liveAPI.platinum_raw + (i.pdYield||0)*state.liveAPI.palladium_raw + (i.rhYield||0)*state.liveAPI.rhodium_raw; });
 
-        // Update Precious Metals Data for Modal
         SCRAP_DATA["Precious Metals"].items = [
             {n: "Gold (24K)", p: state.liveAPI.gold_rates.Price_24K, isPrecious: true},
             {n: "Silver (.999)", p: state.liveAPI.silver_rates.Price_G, isPrecious: true},
@@ -396,11 +392,10 @@ function fetchLiveRates() {
         ];
 
         renderAll();
-      })
-      .catch(e => {
-          document.getElementById("devOutput").textContent = "Error loading API: " + e.message + "\n\nFallback prices active.";
-          renderAll(); // Still render UI even if API fails
-      });
+    } catch (e) {
+        document.getElementById("devOutput").textContent = "Error loading API: " + e.message + "\n\nFallback prices active.";
+        renderAll();
+    }
 }
 
 /* -- UI & TAB NAVIGATION -- */
@@ -536,6 +531,7 @@ function addToBasket() {
     if (!selectedItem) return;
 
     state.basket.push({
+        category: cat,
         name: selectedItem.n,
         rate: getRate(selectedItem, unit),
         qty: Number(document.getElementById('calcQty').value),
@@ -545,7 +541,7 @@ function addToBasket() {
     renderBasket();
 }
 
-function renderBasket() {
+async function renderBasket() {
     const body = document.getElementById('basketBody');
     body.innerHTML = '';
     let total = 0;
@@ -563,9 +559,24 @@ function renderBasket() {
             </tr>`;
     });
 
-    // Apply Margin
-    const payout = total * (1 - state.margin);
-    document.getElementById('grandTotal').innerText = fmt(payout);
+    const fallbackPayout = total * (1 - state.margin);
+    document.getElementById('grandTotal').innerText = fmt(fallbackPayout);
+
+    if (!state.basket.length) return;
+
+    try {
+        const lineItems = state.basket.map((it) => ({
+            category: it.category || document.getElementById('calcCatSelect').value,
+            name: it.name,
+            qty: it.qty,
+            unit: it.unit,
+            rate: it.rate
+        }));
+        const quote = await apiClient.getQuote(lineItems, state.margin);
+        document.getElementById('grandTotal').innerText = fmt(quote.payout);
+    } catch (err) {
+        console.warn('Quote API fallback to client calc:', err.message);
+    }
 }
 
 function removeBasket(i) { state.basket.splice(i,1); localStorage.setItem('scrapboard_basket', JSON.stringify(state.basket)); renderBasket(); }
