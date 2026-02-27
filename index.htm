@@ -323,7 +323,8 @@ const state = {
     theme: 'dark',
     basket: JSON.parse(localStorage.getItem('scrapboard_basket') || '[]'),
     liveAPI: null,
-    margin: 0
+    margin: 0,
+    quoteRequestId: 0
 };
 
 const fmt = (v) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(v || 0);
@@ -542,6 +543,7 @@ function addToBasket() {
 }
 
 async function renderBasket() {
+    const quoteRequestId = ++state.quoteRequestId;
     const body = document.getElementById('basketBody');
     body.innerHTML = '';
     let total = 0;
@@ -573,8 +575,10 @@ async function renderBasket() {
             rate: it.rate
         }));
         const quote = await apiClient.getQuote(lineItems, state.margin);
+        if (quoteRequestId !== state.quoteRequestId) return;
         document.getElementById('grandTotal').innerText = fmt(quote.payout);
     } catch (err) {
+        if (quoteRequestId !== state.quoteRequestId) return;
         console.warn('Quote API fallback to client calc:', err.message);
     }
 }
